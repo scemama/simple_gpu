@@ -4,7 +4,7 @@ A simple and easy-to-use library for GPU computing in Fortran, providing transpa
 
 ## Documentation
 
-📚 **[Online API Documentation](https://scemama.github.io/simple_gpu/)** - Complete API reference generated with Doxygen
+**[Online API Documentation](https://scemama.github.io/simple_gpu/)** - Complete API reference generated with Doxygen
 
 ## Overview
 
