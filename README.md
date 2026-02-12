@@ -124,7 +124,7 @@ Both libraries provide the same Fortran interface, allowing seamless switching b
 
 ### Basic Example
 
-```fortran
+```f90
 program example
   use gpu
   implicit none
@@ -177,7 +177,7 @@ gfortran -o myapp myapp.f90 -lgpu_nvidia -L/usr/local/cuda/lib64 -lcudart -lcubl
 
 For testing and comparison, you can dynamically load different libraries at runtime:
 
-```fortran
+```f90
 ! Load CPU library
 call load_library("libgpu_cpu.so")
 ! ... run computations ...
