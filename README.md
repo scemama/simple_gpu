@@ -122,7 +122,30 @@ Both libraries provide the same Fortran interface, allowing seamless switching b
 
 ## Usage
 
-### Basic Example
+### Data Types
+
+The library provides multidimensional array types for both single and double precision:
+
+- `gpu_double1`: 1-dimensional array of double precision values
+- `gpu_double2`: 2-dimensional array of double precision values
+- `gpu_double3`: 3-dimensional array of double precision values
+- `gpu_double4`, `gpu_double5`, `gpu_double6`: 4, 5, and 6-dimensional arrays
+
+Similarly for single precision:
+- `gpu_real1` through `gpu_real6`
+
+Each type contains:
+- `c`: C pointer to GPU memory
+- `f`: Fortran pointer for accessing data (e.g., `f(:)` for 1D, `f(:,:)` for 2D)
+
+The `gpu_allocate` function is overloaded and automatically accepts the appropriate number of dimensions:
+```f90
+call gpu_allocate(x, n)        ! 1D array: x is gpu_double1 or gpu_real1
+call gpu_allocate(a, m, n)     ! 2D array: a is gpu_double2 or gpu_real2
+call gpu_allocate(b, l, m, n)  ! 3D array: b is gpu_double3 or gpu_real3
+```
+
+### Basic Example with 1D Arrays
 
 ```f90
 program example
@@ -139,7 +162,7 @@ program example
   ! Initialize BLAS handle
   call gpu_blas_create(handle)
   
-  ! Allocate vectors
+  ! Allocate vectors (1D arrays)
   call gpu_allocate(x, n)
   call gpu_allocate(y, n)
   
@@ -151,7 +174,8 @@ program example
   call gpu_upload(y)
   
   ! Compute dot product on GPU
-  call gpu_ddot(handle, n, x, 1, y, 1, result)
+  ! Note: Use address of first element (x%f(1), not x)
+  call gpu_ddot(handle, n, x%f(1), 1, y%f(1), 1, result)
   
   ! Clean up
   call gpu_free(x)
@@ -159,6 +183,71 @@ program example
   call gpu_blas_destroy(handle)
   
 end program example
+```
+
+### Example with 2D Arrays
+
+```f90
+program example_2d
+  use gpu
+  implicit none
+  
+  type(gpu_blas) :: handle
+  type(gpu_double2) :: a, b, c
+  double precision :: alpha, beta
+  integer :: m, n
+  
+  m = 100
+  n = 200
+  
+  ! Initialize BLAS handle
+  call gpu_blas_create(handle)
+  
+  ! Allocate matrices (2D arrays)
+  call gpu_allocate(a, m, n)
+  call gpu_allocate(b, m, n)
+  call gpu_allocate(c, m, n)
+  
+  ! Initialize data
+  ! ... fill a%f and b%f with data ...
+  
+  ! Upload to GPU
+  call gpu_upload(a)
+  call gpu_upload(b)
+  
+  ! Matrix addition: C = alpha*A + beta*B
+  alpha = 1.5d0
+  beta = 0.5d0
+  ! Note: Use address of first element (a%f(1,1), not a)
+  call gpu_dgeam(handle, 'N', 'N', m, n, &
+                 alpha, a%f(1,1), m, beta, b%f(1,1), m, &
+                 c%f(1,1), m)
+  
+  ! Download result
+  call gpu_download(c)
+  
+  ! Access result in c%f(:,:)
+  print *, 'Result at (1,1):', c%f(1,1)
+  
+  ! Clean up
+  call gpu_free(a)
+  call gpu_free(b)
+  call gpu_free(c)
+  call gpu_blas_destroy(handle)
+  
+end program example_2d
+```
+
+**Important Note about BLAS Function Arguments:**
+
+When calling BLAS functions, always use the address of the first element of the array (e.g., `x%f(1)` for 1D arrays or `a%f(1,1)` for 2D arrays), otherwise you may encounter type errors:
+
+```f90
+! Correct:
+call gpu_ddot(handle, n, x%f(1), 1, y%f(1), 1, result)
+
+! Incorrect (may cause type error):
+call gpu_ddot(handle, n, x, 1, y, 1, result)
 ```
 
 ### Using Different Library Versions
@@ -249,10 +338,6 @@ Contributions are welcome! Please ensure:
 ## License
 
 See [LICENSE](LICENSE) file for details.
-
-## Authors
-
-- Anthony Scemama (@scemama)
 
 ## Acknowledgments
 

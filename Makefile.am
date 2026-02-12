@@ -5,6 +5,14 @@ EXTRA_DIST = README.md LICENSE
 
 include_HEADERS = include/simple_gpu.h include/simple_gpu.F90
 
+# pkgconfig files
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = simplegpu_cpu.pc
+
+if BUILD_NVIDIA
+pkgconfig_DATA += simplegpu_nvidia.pc
+endif
+
 # ===== Source library section (from src/Makefile.am) =====
 lib_LTLIBRARIES = libsimplegpu_cpu.la
 
