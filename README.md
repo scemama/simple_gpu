@@ -320,24 +320,10 @@ To use a specific library version, link your application against the desired lib
 
 ```bash
 # CPU version
-gfortran -o myapp myapp.f90 -lsimple_gpu-cpu -lopenblas
+gfortran -o myapp myapp.f90 -lsimple_gpu-cpu
 
 # GPU version (NVIDIA)
-gfortran -o myapp myapp.f90 -lsimple_gpu-nvidia -L/usr/local/cuda/lib64 -lcudart -lcublas
-```
-
-### Runtime Library Selection
-
-For testing and comparison, you can dynamically load different libraries at runtime:
-
-```f90
-! Load CPU library
-call load_library("libsimple_gpu-cpu.so")
-! ... run computations ...
-
-! Load GPU library
-call load_library("libsimple_gpu-nvidia.so")
-! ... run same computations and compare ...
+gfortran -o myapp myapp.f90 -lsimple_gpu-nvidia
 ```
 
 ## Testing
@@ -431,8 +417,3 @@ The documentation is automatically built and published to GitHub Pages when chan
 
 See [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
-
-This library provides bindings to:
-- BLAS (Basic Linear Algebra Subprograms)
-- NVIDIA cuBLAS (CUDA Basic Linear Algebra Subroutines)
