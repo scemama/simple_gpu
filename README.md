@@ -2,6 +2,10 @@
 
 A simple and easy-to-use library for GPU computing in Fortran, providing transparent access to GPU acceleration through a clean Fortran interface.
 
+## Documentation
+
+📚 **[Online API Documentation](https://scemama.github.io/simple_gpu/)** - Complete API reference generated with Doxygen
+
 ## Overview
 
 Simple GPU is a library designed to simplify GPU computing in Fortran applications. It provides:
@@ -354,6 +358,30 @@ Contributions are welcome! Please ensure:
 - Code follows existing style and conventions
 - All tests pass before submitting
 - New features include appropriate tests
+
+## Building Documentation
+
+The project uses [Doxygen](https://www.doxygen.nl/) to generate API documentation from source code comments.
+
+### Prerequisites
+
+- Doxygen (version 1.9 or later)
+- Graphviz (for generating diagrams)
+
+### Generate Documentation Locally
+
+```bash
+# Install dependencies (Ubuntu/Debian)
+sudo apt-get install doxygen graphviz
+
+# Generate documentation
+doxygen Doxyfile
+
+# View documentation
+# Open docs/html/index.html in your web browser
+```
+
+The documentation is automatically built and published to GitHub Pages when changes are pushed to the main branch.
 
 ## License
 

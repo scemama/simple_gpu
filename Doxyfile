@@ -1,0 +1,53 @@
+# Doxyfile for Simple GPU library
+
+# Project information
+PROJECT_NAME           = "Simple GPU"
+PROJECT_NUMBER         = "1.0"
+PROJECT_BRIEF          = "Fortran GPU Computing Library with transparent CPU/GPU support"
+OUTPUT_DIRECTORY       = docs
+
+# Input configuration
+INPUT                  = README.md include/ src/
+FILE_PATTERNS          = *.F90 *.f90 *.c *.h *.md
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+
+# Fortran optimization
+OPTIMIZE_FOR_FORTRAN   = YES
+EXTENSION_MAPPING      = F90=FortranFree f90=FortranFree
+
+# Output configuration
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+# Extract all documentation
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+
+# Source code
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+
+# Graphs and diagrams
+HAVE_DOT               = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+
+# Output formatting
+HTML_DYNAMIC_SECTIONS  = YES
+GENERATE_TREEVIEW      = YES
+
+# Warnings
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = YES
+
+# Other settings
+CASE_SENSE_NAMES       = NO
+SHOW_FILES             = YES
+SHOW_NAMESPACES        = YES
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES
