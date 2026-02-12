@@ -34,6 +34,7 @@ Makefile.in
 tests/*.log
 tests/*.trs
 tests/test_gpu_comparison
+tests/test_cpu_basic
 
 # Editor and IDE files
 *~
