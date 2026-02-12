@@ -62,7 +62,7 @@ Simple GPU is a library designed to simplify GPU computing in Fortran applicatio
 
 1. **Generate configure script** (if building from git):
    ```bash
-   autoreconf -i
+   ./autogen.sh
    ```
 
 2. **Configure the build**:
