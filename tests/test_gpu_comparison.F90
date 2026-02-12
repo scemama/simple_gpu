@@ -207,6 +207,9 @@ program test_gpu_comparison
   print *, "================================"
   write(*,'(A,I0,A,I0,A)') " Passed: ", test_passed, " / ", total_tests, " tests"
   
+  ! Cleanup
+  deallocate(x_h, y_h, a_h, b_h, c_h)
+  
   if (test_passed == total_tests) then
     print *, " Result: ALL TESTS PASSED"
     print *, "================================"
@@ -216,8 +219,5 @@ program test_gpu_comparison
     print *, "================================"
     call exit(1)
   end if
-  
-  ! Cleanup
-  deallocate(x_h, y_h, a_h, b_h, c_h)
   
 end program test_gpu_comparison
