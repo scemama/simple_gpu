@@ -185,8 +185,8 @@ make
 ```
 
 This will create:
-- `src/.libs/libgpu_cpu.so` - CPU-only library
-- `src/.libs/libgpu_nvidia.so` - NVIDIA GPU library (if CUDA was detected)
+- `src/.libs/libsimple_gpu-cpu.so` - CPU-only library
+- `src/.libs/libsimple_gpu-nvidia.so` - NVIDIA GPU library (if CUDA was detected)
 
 ### 3. Test
 
@@ -268,7 +268,7 @@ autoreconf -i
 
 Ensure the BLAS library you linked against is properly installed and accessible:
 ```bash
-ldd src/.libs/libgpu_cpu.so
+ldd src/.libs/libsimple_gpu-cpu.so
 ```
 
 This should show that all dependencies are resolved.
@@ -279,7 +279,7 @@ After installation, verify that the libraries are correctly installed:
 
 ```bash
 # Check if libraries are installed
-ls -l $PREFIX/lib/libgpu_*.so*
+ls -l $PREFIX/lib/libsimple_gpu-*.so*
 
 # Check if headers are installed
 ls -l $PREFIX/include/simple_gpu.* 
@@ -296,7 +296,7 @@ program test
 end program test
 EOF
 
-gfortran test.f90 -lgpu_cpu -L$PREFIX/lib -I$PREFIX/include
+gfortran test.f90 -lsimple_gpu-cpu -L$PREFIX/lib -I$PREFIX/include
 ./a.out
 rm -f test.f90 a.out
 ```

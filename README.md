@@ -114,12 +114,12 @@ All BLAS operations have variants that accept 64-bit integers for dimensions. Th
 
 Simple GPU provides two shared libraries:
 
-1. **libgpu_cpu.so**: CPU-only version
+1. **libsimple_gpu-cpu.so**: CPU-only version
    - Uses standard BLAS library
    - No GPU required
    - Useful for development and testing on systems without GPUs
 
-2. **libgpu_nvidia.so**: NVIDIA GPU version (if CUDA is available)
+2. **libsimple_gpu-nvidia.so**: NVIDIA GPU version (if CUDA is available)
    - Uses NVIDIA cuBLAS library
    - Requires CUDA-capable GPU
    - Provides GPU acceleration for supported operations
@@ -285,10 +285,10 @@ To use a specific library version, link your application against the desired lib
 
 ```bash
 # CPU version
-gfortran -o myapp myapp.f90 -lgpu_cpu -lopenblas
+gfortran -o myapp myapp.f90 -lsimple_gpu-cpu -lopenblas
 
 # GPU version (NVIDIA)
-gfortran -o myapp myapp.f90 -lgpu_nvidia -L/usr/local/cuda/lib64 -lcudart -lcublas
+gfortran -o myapp myapp.f90 -lsimple_gpu-nvidia -L/usr/local/cuda/lib64 -lcudart -lcublas
 ```
 
 ### Runtime Library Selection
@@ -297,11 +297,11 @@ For testing and comparison, you can dynamically load different libraries at runt
 
 ```f90
 ! Load CPU library
-call load_library("libgpu_cpu.so")
+call load_library("libsimple_gpu-cpu.so")
 ! ... run computations ...
 
 ! Load GPU library
-call load_library("libgpu_nvidia.so")
+call load_library("libsimple_gpu-nvidia.so")
 ! ... run same computations and compare ...
 ```
 
