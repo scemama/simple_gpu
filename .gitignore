@@ -41,6 +41,8 @@ tests/test_gpu_comparison
 tests/test_cpu_basic
 tests/test_cpu
 tests/test_gpu
+tests/test_*_cpu
+tests/test_*_gpu
 test-suite.log
 
 # Editor and IDE files
