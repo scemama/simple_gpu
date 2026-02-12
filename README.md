@@ -28,6 +28,8 @@ Simple GPU is a library designed to simplify GPU computing in Fortran applicatio
 
 ### BLAS Operations
 
+All BLAS operations have variants that accept 64-bit integers for dimensions. These variants have a `_64` suffix (e.g., `gpu_ddot_64`, `gpu_dgemm_64`).
+
 #### Level 1: Vector operations
 - `gpu_sdot`, `gpu_ddot`: Dot product (single/double precision)
 
@@ -154,8 +156,9 @@ program example
   
   type(gpu_blas) :: handle
   type(gpu_double1) :: x, y
+  double precision, allocatable :: x_h(:), y_h(:)
   double precision :: result
-  integer :: n
+  integer :: n, i
   
   n = 1000
   
@@ -166,18 +169,25 @@ program example
   call gpu_allocate(x, n)
   call gpu_allocate(y, n)
   
-  ! Initialize data (simplified)
-  ! ... fill x%f and y%f with data ...
+  ! Create and initialize host data
+  allocate(x_h(n), y_h(n))
+  do i = 1, n
+    x_h(i) = dble(i)
+    y_h(i) = dble(i) * 2.0d0
+  end do
   
   ! Upload to GPU
-  call gpu_upload(x)
-  call gpu_upload(y)
+  call gpu_upload(x_h, x)
+  call gpu_upload(y_h, y)
   
   ! Compute dot product on GPU
   ! Note: Use address of first element (x%f(1), not x)
   call gpu_ddot(handle, n, x%f(1), 1, y%f(1), 1, result)
   
+  print *, 'Dot product result:', result
+  
   ! Clean up
+  deallocate(x_h, y_h)
   call gpu_free(x)
   call gpu_free(y)
   call gpu_blas_destroy(handle)
@@ -194,8 +204,9 @@ program example_2d
   
   type(gpu_blas) :: handle
   type(gpu_double2) :: a, b, c
+  double precision, allocatable :: a_h(:,:), b_h(:,:), c_h(:,:)
   double precision :: alpha, beta
-  integer :: m, n
+  integer :: m, n, i, j
   
   m = 100
   n = 200
@@ -208,12 +219,18 @@ program example_2d
   call gpu_allocate(b, m, n)
   call gpu_allocate(c, m, n)
   
-  ! Initialize data
-  ! ... fill a%f and b%f with data ...
+  ! Create and initialize host data
+  allocate(a_h(m,n), b_h(m,n), c_h(m,n))
+  do j = 1, n
+    do i = 1, m
+      a_h(i,j) = dble(i + j)
+      b_h(i,j) = dble(i * j)
+    end do
+  end do
   
   ! Upload to GPU
-  call gpu_upload(a)
-  call gpu_upload(b)
+  call gpu_upload(a_h, a)
+  call gpu_upload(b_h, b)
   
   ! Matrix addition: C = alpha*A + beta*B
   alpha = 1.5d0
@@ -223,13 +240,14 @@ program example_2d
                  alpha, a%f(1,1), m, beta, b%f(1,1), m, &
                  c%f(1,1), m)
   
-  ! Download result
-  call gpu_download(c)
+  ! Download result from GPU to host
+  call gpu_download(c, c_h)
   
-  ! Access result in c%f(:,:)
-  print *, 'Result at (1,1):', c%f(1,1)
+  ! Access result in c_h(:,:)
+  print *, 'Result at (1,1):', c_h(1,1)
   
   ! Clean up
+  deallocate(a_h, b_h, c_h)
   call gpu_free(a)
   call gpu_free(b)
   call gpu_free(c)
