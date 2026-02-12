@@ -2,7 +2,7 @@ AC_INIT([simple_gpu], [1.0], [https://github.com/scemama/simple_gpu])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-config])
 
-AM_INIT_AUTOMAKE([foreign -Wall -Werror color-tests parallel-tests silent-rules])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror color-tests parallel-tests silent-rules subdir-objects])
 AC_PROG_CC
 AC_PROG_FC
 AM_PROG_AR
