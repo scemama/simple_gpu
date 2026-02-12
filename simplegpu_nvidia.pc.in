@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: simple_gpu_nvidia
+Description: Simple GPU - Fortran GPU Computing Library (NVIDIA GPU version)
+Version: @VERSION@
+Requires:
+Libs: -L${libdir} -lsimplegpu_nvidia @CUDA_LDFLAGS@ @CUDA_LIBS@
+Cflags: -I${includedir} @CUDA_CFLAGS@

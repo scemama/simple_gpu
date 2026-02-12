@@ -2,6 +2,10 @@
 
 A simple and easy-to-use library for GPU computing in Fortran, providing transparent access to GPU acceleration through a clean Fortran interface.
 
+## Documentation
+
+**[Online API Documentation](https://scemama.github.io/simple_gpu/)** - Complete API reference generated with Doxygen
+
 ## Overview
 
 Simple GPU is a library designed to simplify GPU computing in Fortran applications. It provides:
@@ -27,6 +31,8 @@ Simple GPU is a library designed to simplify GPU computing in Fortran applicatio
 - `gpu_get_memory`: Query GPU memory status
 
 ### BLAS Operations
+
+All BLAS operations have variants that accept 64-bit integers for dimensions. These variants have a `_64` suffix (e.g., `gpu_ddot_64`, `gpu_dgemm_64`).
 
 #### Level 1: Vector operations
 - `gpu_sdot`, `gpu_ddot`: Dot product (single/double precision)
@@ -122,7 +128,30 @@ Both libraries provide the same Fortran interface, allowing seamless switching b
 
 ## Usage
 
-### Basic Example
+### Data Types
+
+The library provides multidimensional array types for both single and double precision:
+
+- `gpu_double1`: 1-dimensional array of double precision values
+- `gpu_double2`: 2-dimensional array of double precision values
+- `gpu_double3`: 3-dimensional array of double precision values
+- `gpu_double4`, `gpu_double5`, `gpu_double6`: 4, 5, and 6-dimensional arrays
+
+Similarly for single precision:
+- `gpu_real1` through `gpu_real6`
+
+Each type contains:
+- `c`: C pointer to GPU memory
+- `f`: Fortran pointer for accessing data (e.g., `f(:)` for 1D, `f(:,:)` for 2D)
+
+The `gpu_allocate` function is overloaded and automatically accepts the appropriate number of dimensions:
+```f90
+call gpu_allocate(x, n)        ! 1D array: x is gpu_double1 or gpu_real1
+call gpu_allocate(a, m, n)     ! 2D array: a is gpu_double2 or gpu_real2
+call gpu_allocate(b, l, m, n)  ! 3D array: b is gpu_double3 or gpu_real3
+```
+
+### Basic Example with 1D Arrays
 
 ```f90
 program example
@@ -131,35 +160,119 @@ program example
   
   type(gpu_blas) :: handle
   type(gpu_double1) :: x, y
+  double precision, allocatable :: x_h(:), y_h(:)
   double precision :: result
-  integer :: n
+  integer :: n, i
   
   n = 1000
   
   ! Initialize BLAS handle
   call gpu_blas_create(handle)
   
-  ! Allocate vectors
+  ! Allocate vectors (1D arrays)
   call gpu_allocate(x, n)
   call gpu_allocate(y, n)
   
-  ! Initialize data (simplified)
-  ! ... fill x%f and y%f with data ...
+  ! Create and initialize host data
+  allocate(x_h(n), y_h(n))
+  do i = 1, n
+    x_h(i) = dble(i)
+    y_h(i) = dble(i) * 2.0d0
+  end do
   
   ! Upload to GPU
-  call gpu_upload(x)
-  call gpu_upload(y)
+  call gpu_upload(x_h, x)
+  call gpu_upload(y_h, y)
   
   ! Compute dot product on GPU
-  call gpu_ddot(handle, n, x, 1, y, 1, result)
+  ! Note: Use address of first element (x%f(1), not x)
+  call gpu_ddot(handle, n, x%f(1), 1, y%f(1), 1, result)
+  
+  print *, 'Dot product result:', result
   
   ! Clean up
+  deallocate(x_h, y_h)
   call gpu_free(x)
   call gpu_free(y)
   call gpu_blas_destroy(handle)
   
 end program example
 ```
+
+### Example with 2D Arrays
+
+```f90
+program example_2d
+  use gpu
+  implicit none
+  
+  type(gpu_blas) :: handle
+  type(gpu_double2) :: a, b, c
+  double precision, allocatable :: a_h(:,:), b_h(:,:), c_h(:,:)
+  double precision :: alpha, beta
+  integer :: m, n, i, j
+  
+  m = 100
+  n = 200
+  
+  ! Initialize BLAS handle
+  call gpu_blas_create(handle)
+  
+  ! Allocate matrices (2D arrays)
+  call gpu_allocate(a, m, n)
+  call gpu_allocate(b, m, n)
+  call gpu_allocate(c, m, n)
+  
+  ! Create and initialize host data
+  allocate(a_h(m,n), b_h(m,n), c_h(m,n))
+  do j = 1, n
+    do i = 1, m
+      a_h(i,j) = dble(i + j)
+      b_h(i,j) = dble(i * j)
+    end do
+  end do
+  
+  ! Upload to GPU
+  call gpu_upload(a_h, a)
+  call gpu_upload(b_h, b)
+  
+  ! Matrix addition: C = alpha*A + beta*B
+  alpha = 1.5d0
+  beta = 0.5d0
+  ! Note: Use address of first element (a%f(1,1), not a)
+  call gpu_dgeam(handle, 'N', 'N', m, n, &
+                 alpha, a%f(1,1), m, beta, b%f(1,1), m, &
+                 c%f(1,1), m)
+  
+  ! Download result from GPU to host
+  call gpu_download(c, c_h)
+  
+  ! Access result in c_h(:,:)
+  print *, 'Result at (1,1):', c_h(1,1)
+  
+  ! Clean up
+  deallocate(a_h, b_h, c_h)
+  call gpu_free(a)
+  call gpu_free(b)
+  call gpu_free(c)
+  call gpu_blas_destroy(handle)
+  
+end program example_2d
+```
+
+**Important Note about BLAS Function Arguments:**
+
+When calling BLAS functions, always use the address of the first element of the array (e.g., `x%f(1)` for 1D arrays or `a%f(1,1)` for 2D arrays), otherwise you may encounter type errors:
+
+```f90
+! Correct:
+call gpu_ddot(handle, n, x%f(1), 1, y%f(1), 1, result)
+
+! Incorrect (may cause type error):
+call gpu_ddot(handle, n, x, 1, y, 1, result)
+```
+
+**Technical Note:** The library wrappers use Fortran's `c_loc()` intrinsic to obtain the memory address of the array element. By passing `x%f(1)`, you're providing the first element as a scalar with the `target` attribute, which `c_loc()` then converts to the appropriate C pointer for the underlying BLAS routines.
 
 ### Using Different Library Versions
 
@@ -246,13 +359,33 @@ Contributions are welcome! Please ensure:
 - All tests pass before submitting
 - New features include appropriate tests
 
+## Building Documentation
+
+The project uses [Doxygen](https://www.doxygen.nl/) to generate API documentation from source code comments.
+
+### Prerequisites
+
+- Doxygen (version 1.9 or later)
+- Graphviz (for generating diagrams)
+
+### Generate Documentation Locally
+
+```bash
+# Install dependencies (Ubuntu/Debian)
+sudo apt-get install doxygen graphviz
+
+# Generate documentation
+doxygen Doxyfile
+
+# View documentation
+# Open docs/html/index.html in your web browser
+```
+
+The documentation is automatically built and published to GitHub Pages when changes are pushed to the main branch.
+
 ## License
 
 See [LICENSE](LICENSE) file for details.
-
-## Authors
-
-- Anthony Scemama (@scemama)
 
 ## Acknowledgments
 

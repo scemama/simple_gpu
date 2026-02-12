@@ -1,4 +1,5 @@
-AC_INIT([simple_gpu], [1.0], [https://github.com/scemama/simple_gpu])
+AC_INIT([simple_gpu], [1.0], [https://github.com/scemama/simple_gpu], [], [https://github.com/scemama/simple_gpu])
+# Author: Anthony Scemama
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-config])
 
@@ -90,6 +91,8 @@ AM_CONDITIONAL([BUILD_NVIDIA], [test "x$BUILD_NVIDIA" = "xyes"])
 # Output files
 AC_CONFIG_FILES([
   Makefile
+  simplegpu_cpu.pc
+  simplegpu_nvidia.pc
 ])
 
 AC_OUTPUT

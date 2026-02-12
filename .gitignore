@@ -32,12 +32,15 @@ Makefile.in
 *.mod
 *.exe
 .dirstamp
+*.pc
 
 # Test outputs
 tests/*.log
 tests/*.trs
 tests/test_gpu_comparison
 tests/test_cpu_basic
+tests/test_cpu
+tests/test_gpu
 test-suite.log
 
 # Editor and IDE files
@@ -51,3 +54,6 @@ test-suite.log
 # OS files
 .DS_Store
 Thumbs.db
+
+# Generated documentation
+/docs/

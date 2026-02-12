@@ -1,110 +1,204 @@
+!> @brief Simple GPU - Fortran GPU Computing Library
+!>
+!> This module provides a Fortran interface for GPU computing with transparent
+!> support for both CPU (using standard BLAS) and NVIDIA GPU (using cuBLAS).
+!>
+!> @details
+!> The library provides:
+!> - GPU memory management (allocate, free, upload, download, copy)
+!> - BLAS operations (Level 1, 2, and 3) for single and double precision
+!> - Support for multidimensional arrays (1D through 6D)
+!> - CUDA stream management for asynchronous operations
+!> - Transparent API that works with both CPU and GPU backends
+!>
+!> @author Anthony Scemama
+!> @date 2026
+!>
 module gpu
   use, intrinsic :: iso_c_binding
   implicit none
 
-! Data types
-! ----------
+!=============================================================================
+! Data Types
+!=============================================================================
+!
+! GPU array types for double precision (1D through 6D)
+! Each type contains:
+!   - c: C pointer to GPU/CPU memory
+!   - f: Fortran pointer for accessing data with Fortran array syntax
+!
+! Usage:
+!   type(gpu_double1) :: x
+!   call gpu_allocate(x, n)
+!   x%f(i) = value  ! Access using Fortran syntax
+!   call gpu_free(x)
+!
 
+  !> @brief 1-dimensional array of double precision values
+  !> @details
+  !> Use for vectors and 1D data. The Fortran pointer f(:) provides
+  !> array-style access to the data.
+  !> @code{.f90}
+  !>   type(gpu_double1) :: x
+  !>   call gpu_allocate(x, n)
+  !>   x%f(1) = 1.0d0  ! Access first element
+  !> @endcode
   type gpu_double1
-    type(c_ptr) :: c
-    double precision, pointer :: f(:)
+    type(c_ptr) :: c                    !< C pointer to GPU/CPU memory
+    double precision, pointer :: f(:)   !< Fortran pointer for array access
   end type
 
+  !> @brief 2-dimensional array of double precision values
+  !> @details
+  !> Use for matrices and 2D data. The Fortran pointer f(:,:) provides
+  !> array-style access to the data.
+  !> @code{.f90}
+  !>   type(gpu_double2) :: a
+  !>   call gpu_allocate(a, m, n)
+  !>   a%f(1,1) = 1.0d0  ! Access element at (1,1)
+  !> @endcode
   type gpu_double2
-    type(c_ptr) :: c
-    double precision, pointer :: f(:,:)
+    type(c_ptr) :: c                      !< C pointer to GPU/CPU memory
+    double precision, pointer :: f(:,:)   !< Fortran pointer for array access
   end type
 
+  !> @brief 3-dimensional array of double precision values
   type gpu_double3
-    type(c_ptr) :: c
-    double precision, pointer :: f(:,:,:)
+    type(c_ptr) :: c                        !< C pointer to GPU/CPU memory
+    double precision, pointer :: f(:,:,:)   !< Fortran pointer for array access
   end type
 
+  !> @brief 4-dimensional array of double precision values
   type gpu_double4
-    type(c_ptr) :: c
-    double precision, pointer :: f(:,:,:,:)
+    type(c_ptr) :: c                          !< C pointer to GPU/CPU memory
+    double precision, pointer :: f(:,:,:,:)   !< Fortran pointer for array access
   end type
 
+  !> @brief 5-dimensional array of double precision values
   type gpu_double5
-    type(c_ptr) :: c
-    double precision, pointer :: f(:,:,:,:,:)
+    type(c_ptr) :: c                            !< C pointer to GPU/CPU memory
+    double precision, pointer :: f(:,:,:,:,:)   !< Fortran pointer for array access
   end type
 
+  !> @brief 6-dimensional array of double precision values
   type gpu_double6
-    type(c_ptr) :: c
-    double precision, pointer :: f(:,:,:,:,:,:)
+    type(c_ptr) :: c                              !< C pointer to GPU/CPU memory
+    double precision, pointer :: f(:,:,:,:,:,:)   !< Fortran pointer for array access
   end type
 
+!
+! GPU array types for single precision (1D through 6D)
+!
 
+  !> @brief 1-dimensional array of single precision values
   type gpu_real1
-    type(c_ptr) :: c
-    real, pointer :: f(:)
+    type(c_ptr) :: c              !< C pointer to GPU/CPU memory
+    real, pointer :: f(:)         !< Fortran pointer for array access
   end type
 
+  !> @brief 2-dimensional array of single precision values
   type gpu_real2
-    type(c_ptr) :: c
-    real, pointer :: f(:,:)
+    type(c_ptr) :: c                !< C pointer to GPU/CPU memory
+    real, pointer :: f(:,:)         !< Fortran pointer for array access
   end type
 
+  !> @brief 3-dimensional array of single precision values
   type gpu_real3
-    type(c_ptr) :: c
-    real, pointer :: f(:,:,:)
+    type(c_ptr) :: c                  !< C pointer to GPU/CPU memory
+    real, pointer :: f(:,:,:)         !< Fortran pointer for array access
   end type
 
+  !> @brief 4-dimensional array of single precision values
   type gpu_real4
-    type(c_ptr) :: c
-    real, pointer :: f(:,:,:,:)
+    type(c_ptr) :: c                    !< C pointer to GPU/CPU memory
+    real, pointer :: f(:,:,:,:)         !< Fortran pointer for array access
   end type
 
+  !> @brief 5-dimensional array of single precision values
   type gpu_real5
-    type(c_ptr) :: c
-    real, pointer :: f(:,:,:,:,:)
+    type(c_ptr) :: c                      !< C pointer to GPU/CPU memory
+    real, pointer :: f(:,:,:,:,:)         !< Fortran pointer for array access
   end type
 
+  !> @brief 6-dimensional array of single precision values
   type gpu_real6
-    type(c_ptr) :: c
-    real, pointer :: f(:,:,:,:,:,:)
+    type(c_ptr) :: c                        !< C pointer to GPU/CPU memory
+    real, pointer :: f(:,:,:,:,:,:)         !< Fortran pointer for array access
   end type
 
+!
+! Handle types
+!
 
+  !> @brief Handle for BLAS operations
+  !> @details
+  !> Manages cuBLAS library context (for GPU) or BLAS context (for CPU).
+  !> Must be created before calling any BLAS functions and destroyed when done.
+  !> @code{.f90}
+  !>   type(gpu_blas) :: handle
+  !>   call gpu_blas_create(handle)
+  !>   ! ... perform BLAS operations ...
+  !>   call gpu_blas_destroy(handle)
+  !> @endcode
   type gpu_blas
-    type(c_ptr) :: c
+    type(c_ptr) :: c   !< C pointer to BLAS handle
   end type
 
+  !> @brief Handle for CUDA streams
+  !> @details
+  !> Enables asynchronous operations and concurrent kernel execution.
+  !> Only applicable when using the NVIDIA GPU backend.
+  !> @code{.f90}
+  !>   type(gpu_stream) :: stream
+  !>   call gpu_stream_create(stream)
+  !>   ! ... perform asynchronous operations ...
+  !>   call gpu_stream_synchronize(stream)
+  !>   call gpu_stream_destroy(stream)
+  !> @endcode
   type gpu_stream
-    type(c_ptr) :: c
+    type(c_ptr) :: c   !< C pointer to CUDA stream
   end type
 
 
+!=============================================================================
 ! C interfaces
-! ------------
+!=============================================================================
+! Low-level C interface bindings - not intended for direct use
+! These are wrapped by higher-level Fortran subroutines in the contains section
+!
 
   interface
+    !> @brief Get number of GPU devices (C binding)
     integer function gpu_ndevices() bind(C)
       import
     end function
 
+    !> @brief Set active GPU device (C binding)
     subroutine gpu_set_device(id) bind(C)
       import
       integer(c_int32_t), value :: id
     end subroutine
 
+    !> @brief Query GPU memory usage (C binding)
     subroutine gpu_get_memory(free, total) bind(C, name='gpu_get_memory')
       import
       integer(c_size_t) :: free, total
     end subroutine
 
+    !> @brief Allocate GPU/CPU memory (C binding)
     subroutine gpu_allocate_c(ptr, n) bind(C, name='gpu_allocate')
       import
       type(c_ptr) :: ptr
       integer(c_int64_t), value :: n
     end subroutine
 
+    !> @brief Free GPU/CPU memory (C binding)
     subroutine gpu_deallocate_c(ptr) bind(C, name='gpu_deallocate')
       import
       type(c_ptr) :: ptr
     end subroutine
 
+    !> @brief Upload data to GPU (C binding)
     subroutine gpu_upload_c(cpu_ptr, gpu_ptr, n) bind(C, name='gpu_upload')
       import
       type(c_ptr), value :: cpu_ptr
@@ -239,10 +333,51 @@ module gpu
 
   end interface
 
+  ! Make all C binding interfaces private - users should use the Fortran wrappers
+  private :: gpu_ndevices, gpu_set_device, gpu_get_memory
+  private :: gpu_allocate_c, gpu_deallocate_c
+  private :: gpu_upload_c, gpu_download_c, gpu_copy_c
+  private :: gpu_stream_create_c, gpu_stream_destroy_c, gpu_set_stream_c
+  private :: gpu_blas_create_c, gpu_blas_destroy_c
+  private :: gpu_ddot_c, gpu_sdot_c
+  private :: gpu_dgeam_c, gpu_sgeam_c
+  private :: gpu_dgemv_c, gpu_sgemv_c
+  private :: gpu_dgemm_c, gpu_sgemm_c
 
+
+!=============================================================================
 ! Polymorphic interfaces
-! ----------------------
+!=============================================================================
+!
+! These interfaces are overloaded to work with different array types and
+! dimensions. The appropriate implementation is selected automatically based
+! on the argument types.
+!
 
+  !> @brief Allocate GPU/CPU memory for arrays
+  !> @details
+  !> Polymorphic interface that automatically selects the correct implementation
+  !> based on the array type and number of dimensions provided.
+  !>
+  !> Supports:
+  !> - 1D through 6D arrays
+  !> - Single and double precision
+  !> - 32-bit and 64-bit integer dimensions
+  !>
+  !> @param[out] arr GPU array to allocate (gpu_double1..6 or gpu_real1..6)
+  !> @param[in] n1 Size of first dimension
+  !> @param[in] n2 Size of second dimension (for 2D+)
+  !> @param[in] n3 Size of third dimension (for 3D+)
+  !> @param[in] n4 Size of fourth dimension (for 4D+)
+  !> @param[in] n5 Size of fifth dimension (for 5D+)
+  !> @param[in] n6 Size of sixth dimension (for 6D)
+  !>
+  !> @code{.f90}
+  !>   type(gpu_double1) :: x
+  !>   type(gpu_double2) :: a
+  !>   call gpu_allocate(x, 1000)         ! 1D: 1000 elements
+  !>   call gpu_allocate(a, 100, 200)     ! 2D: 100x200 matrix
+  !> @endcode
   interface gpu_allocate
     procedure gpu_allocate_double1     &
              ,gpu_allocate_double2     &
@@ -270,6 +405,16 @@ module gpu
              ,gpu_allocate_real6_64
   end interface gpu_allocate
 
+  !> @brief Free GPU/CPU memory
+  !> @details
+  !> Deallocates memory previously allocated with gpu_allocate.
+  !> After calling this, the array should not be used.
+  !>
+  !> @param[inout] arr GPU array to deallocate
+  !>
+  !> @code{.f90}
+  !>   call gpu_deallocate(x)
+  !> @endcode
   interface gpu_deallocate
     procedure gpu_deallocate_double1     &
              ,gpu_deallocate_double2     &
@@ -285,6 +430,21 @@ module gpu
              ,gpu_deallocate_real6
   end interface gpu_deallocate
 
+  !> @brief Upload data from host (CPU) to device (GPU)
+  !> @details
+  !> Transfers data from host memory to GPU memory.
+  !> The host array dimensions must match the GPU array dimensions.
+  !>
+  !> @param[in] host_arr Host array containing data to upload
+  !> @param[inout] device_arr GPU array to receive data
+  !>
+  !> @code{.f90}
+  !>   double precision :: x_h(1000)
+  !>   type(gpu_double1) :: x
+  !>   call gpu_allocate(x, 1000)
+  !>   ! ... fill x_h with data ...
+  !>   call gpu_upload(x_h, x)
+  !> @endcode
   interface gpu_upload
     procedure gpu_upload_double0  &
              ,gpu_upload_double1  &
@@ -302,6 +462,19 @@ module gpu
              ,gpu_upload_real6
   end interface gpu_upload
 
+  !> @brief Download data from device (GPU) to host (CPU)
+  !> @details
+  !> Transfers data from GPU memory to host memory.
+  !> The host array dimensions must match the GPU array dimensions.
+  !>
+  !> @param[in] device_arr GPU array containing data to download
+  !> @param[out] host_arr Host array to receive data
+  !>
+  !> @code{.f90}
+  !>   double precision :: x_h(1000)
+  !>   type(gpu_double1) :: x
+  !>   call gpu_download(x, x_h)
+  !> @endcode
   interface gpu_download
     procedure gpu_download_double0  &
              ,gpu_download_double1  &
@@ -319,6 +492,21 @@ module gpu
              ,gpu_download_real6
   end interface gpu_download
 
+  !> @brief Copy data between GPU arrays
+  !> @details
+  !> Copies data from one GPU array to another.
+  !> Both arrays must have the same dimensions and type.
+  !>
+  !> @param[in] src Source GPU array
+  !> @param[out] dest Destination GPU array
+  !>
+  !> @code{.f90}
+  !>   type(gpu_double1) :: x, y
+  !>   call gpu_allocate(x, 1000)
+  !>   call gpu_allocate(y, 1000)
+  !>   ! ... fill x with data ...
+  !>   call gpu_copy(x, y)  ! Copy x to y
+  !> @endcode
   interface gpu_copy
     procedure gpu_copy_double0  &
              ,gpu_copy_double1  &
@@ -339,10 +527,16 @@ module gpu
 
   contains
 
+!=============================================================================
+! Implementation of polymorphic interfaces
+!=============================================================================
 
-! gpu_allocate
-! ------------
+! gpu_allocate implementations
+! ----------------------------
+! These subroutines allocate GPU/CPU memory and set up Fortran pointers
+! for convenient array access.
 
+    !> @brief Allocate 1D double precision array (32-bit dimensions)
     subroutine gpu_allocate_double1(ptr, s)
       implicit none
       type(gpu_double1), intent(inout) :: ptr
@@ -1061,13 +1255,27 @@ module gpu
 
 
 ! gpu_blas
-! --------
+! BLAS handle management
+! ----------------------
 
+    !> @brief Create a BLAS handle
+    !> @details
+    !> Initializes a BLAS handle for performing BLAS operations.
+    !> Must be called before any BLAS functions. The handle should be
+    !> destroyed with gpu_blas_destroy when no longer needed.
+    !>
+    !> @param[out] handle BLAS handle to create
     subroutine gpu_blas_create(handle)
       type(gpu_blas) :: handle
       call gpu_blas_create_c(handle%c)
     end subroutine
 
+    !> @brief Destroy a BLAS handle
+    !> @details
+    !> Frees resources associated with a BLAS handle.
+    !> The handle should not be used after calling this.
+    !>
+    !> @param[inout] handle BLAS handle to destroy
     subroutine gpu_blas_destroy(handle)
       type(gpu_blas) :: handle
       call gpu_blas_destroy_c(handle%c)
@@ -1076,10 +1284,22 @@ module gpu
 
 
 
+! BLAS Level 1: Vector operations
+! --------------------------------
 
-! dot
-! ---
-
+!> @brief Double precision dot product (32-bit dimensions)
+!> @details
+!> Computes the dot product of two vectors: result = x^T * y
+!>
+!> @param[in] handle BLAS handle
+!> @param[in] n Number of elements
+!> @param[in] dx First element of vector x
+!> @param[in] incx Stride for vector x
+!> @param[in] dy First element of vector y
+!> @param[in] incy Stride for vector y
+!> @param[out] res Resulting dot product
+!>
+!> @note Pass the first element of the array: x%f(1), not x
 subroutine gpu_ddot(handle, n, dx, incx, dy, incy, res)
   type(gpu_blas), intent(in)     :: handle
   integer*4                      :: n, incx, incy
@@ -1089,6 +1309,18 @@ subroutine gpu_ddot(handle, n, dx, incx, dy, incy, res)
 end subroutine
 
 
+!> @brief Double precision dot product (64-bit dimensions)
+!> @details
+!> Computes the dot product of two vectors: result = x^T * y
+!> This variant accepts 64-bit integers for dimensions.
+!>
+!> @param[in] handle BLAS handle
+!> @param[in] n Number of elements (64-bit)
+!> @param[in] dx First element of vector x
+!> @param[in] incx Stride for vector x (64-bit)
+!> @param[in] dy First element of vector y
+!> @param[in] incy Stride for vector y (64-bit)
+!> @param[out] res Resulting dot product
 subroutine gpu_ddot_64(handle, n, dx, incx, dy, incy, res)
   type(gpu_blas), intent(in)     :: handle
   integer*8                      :: n, incx, incy
