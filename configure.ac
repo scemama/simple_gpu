@@ -91,8 +91,8 @@ AM_CONDITIONAL([BUILD_NVIDIA], [test "x$BUILD_NVIDIA" = "xyes"])
 # Output files
 AC_CONFIG_FILES([
   Makefile
-  simple_gpu-cpu.pc
-  simple_gpu-nvidia.pc
+  pkgconfig/simple_gpu-cpu.pc
+  pkgconfig/simple_gpu-nvidia.pc
 ])
 
 AC_OUTPUT

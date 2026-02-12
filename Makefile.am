@@ -1,16 +1,16 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(srcdir)/include
 
-EXTRA_DIST = README.md LICENSE
+EXTRA_DIST = README.md LICENSE pkgconfig/simple_gpu-cpu.pc.in pkgconfig/simple_gpu-nvidia.pc.in
 
 include_HEADERS = include/simple_gpu.h include/simple_gpu.F90
 
 # pkgconfig files
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = simple_gpu-cpu.pc
+pkgconfig_DATA = pkgconfig/simple_gpu-cpu.pc
 
 if BUILD_NVIDIA
-pkgconfig_DATA += simple_gpu-nvidia.pc
+pkgconfig_DATA += pkgconfig/simple_gpu-nvidia.pc
 endif
 
 # ===== Source library section (from src/Makefile.am) =====
