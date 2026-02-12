@@ -5,7 +5,6 @@ AC_CONFIG_AUX_DIR([build-config])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror color-tests parallel-tests silent-rules])
 AC_PROG_CC
 AC_PROG_FC
-AC_PROG_RANLIB
 AM_PROG_AR
 LT_INIT
 

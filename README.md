@@ -204,8 +204,8 @@ make check-verbose
 ## API Reference
 
 For detailed API documentation, see the comments in:
-- `include/gpu.h`: C interface declarations
-- `src/gpu_module.F90`: Fortran module and type definitions
+- `include/simple_gpu.h`: C interface declarations
+- `include/simple_gpu.F90`: Fortran module and type definitions
 
 ## Performance Notes
 

@@ -281,11 +281,13 @@ After installation, verify that the libraries are correctly installed:
 # Check if libraries are installed
 ls -l $PREFIX/lib/libgpu_*.so*
 
-# Check if header is installed
-ls -l $PREFIX/include/gpu.h
+# Check if headers are installed
+ls -l $PREFIX/include/simple_gpu.* 
 
 # Test linking against the library
 cat > test.f90 << 'EOF'
+#include <simple_gpu.F90>
+
 program test
   use gpu
   integer :: n
