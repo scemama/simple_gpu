@@ -49,7 +49,7 @@ check_PROGRAMS += tests/test_gpu
 
 tests_test_gpu_SOURCES = tests/test_basic.F90
 tests_test_gpu_FCFLAGS = -I$(top_builddir)
-tests_test_gpu_LDADD = libsimple_gpu-cpu.la
+tests_test_gpu_LDADD = libsimple_gpu-nvidia.la
 tests_test_gpu_LDFLAGS = -ldl
 endif
 
