@@ -20,7 +20,7 @@ Simple GPU is a library designed to simplify GPU computing in Fortran applicatio
 
 ### Memory Management
 - `gpu_allocate`: Allocate memory on GPU (or CPU for CPU version)
-- `gpu_free`: Free allocated memory
+- `gpu_deallocate`: Free allocated memory
 - `gpu_upload`: Transfer data from CPU to GPU
 - `gpu_download`: Transfer data from GPU to CPU
 - `gpu_copy`: Copy data between GPU memory regions
@@ -154,6 +154,9 @@ call gpu_allocate(b, l, m, n)  ! 3D array: b is gpu_double3 or gpu_real3
 ### Basic Example with 1D Arrays
 
 ```f90
+#include <simple_gpu.F90>
+
+
 program example
   use gpu
   implicit none
@@ -192,8 +195,8 @@ program example
   
   ! Clean up
   deallocate(x_h, y_h)
-  call gpu_free(x)
-  call gpu_free(y)
+  call gpu_deallocate(x)
+  call gpu_deallocate(y)
   call gpu_blas_destroy(handle)
   
 end program example
@@ -202,6 +205,8 @@ end program example
 ### Example with 2D Arrays
 
 ```f90
+#include <simple_gpu.F90>
+
 program example_2d
   use gpu
   implicit none
@@ -252,9 +257,9 @@ program example_2d
   
   ! Clean up
   deallocate(a_h, b_h, c_h)
-  call gpu_free(a)
-  call gpu_free(b)
-  call gpu_free(c)
+  call gpu_deallocate(a)
+  call gpu_deallocate(b)
+  call gpu_deallocate(c)
   call gpu_blas_destroy(handle)
   
 end program example_2d

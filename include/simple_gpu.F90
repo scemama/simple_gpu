@@ -31,7 +31,7 @@ module gpu
 !   type(gpu_double1) :: x
 !   call gpu_allocate(x, n)
 !   x%f(i) = value  ! Access using Fortran syntax
-!   call gpu_free(x)
+!   call gpu_deallocate(x)
 !
 
   !> @brief 1-dimensional array of double precision values
@@ -180,7 +180,7 @@ module gpu
     end subroutine
 
     !> @brief Query GPU memory usage (C binding)
-    subroutine gpu_get_memory(free, total) bind(C, name='gpu_get_memory')
+    subroutine gpu_get_memory(free, total) bind(C)
       import
       integer(c_size_t) :: free, total
     end subroutine
@@ -333,16 +333,6 @@ module gpu
 
   end interface
 
-  ! Make all C binding interfaces private - users should use the Fortran wrappers
-  private :: gpu_ndevices, gpu_set_device, gpu_get_memory
-  private :: gpu_allocate_c, gpu_deallocate_c
-  private :: gpu_upload_c, gpu_download_c, gpu_copy_c
-  private :: gpu_stream_create_c, gpu_stream_destroy_c, gpu_set_stream_c
-  private :: gpu_blas_create_c, gpu_blas_destroy_c
-  private :: gpu_ddot_c, gpu_sdot_c
-  private :: gpu_dgeam_c, gpu_sgeam_c
-  private :: gpu_dgemv_c, gpu_sgemv_c
-  private :: gpu_dgemm_c, gpu_sgemm_c
 
 
 !=============================================================================
