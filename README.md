@@ -128,6 +128,41 @@ Both libraries provide the same Fortran interface, allowing seamless switching b
 
 ## Usage
 
+### Including the Library in Your Code
+
+**Important:** To use the Simple GPU library in your Fortran project, you must create a file with the `.F90` extension (uppercase) that includes the library header using the C preprocessor:
+
+```fortran
+#include <simple_gpu.F90>
+```
+
+#### Why Use `.F90` Instead of `.f90`?
+
+The `.F90` extension (uppercase) is critical because:
+
+1. **Preprocessor Support**: Fortran compilers only run the C preprocessor on files with uppercase extensions (`.F90`, `.F`, `.FOR`). The lowercase `.f90` extension bypasses the preprocessor, so the `#include` directive won't work.
+
+2. **Cross-Compiler Compatibility**: The `#include <simple_gpu.F90>` directive allows the C preprocessor to find the header file in a default location (via `CPATH` environment variable). This means:
+   - When you update the library, no changes are needed in your code
+   - The library can be compiled once with one compiler (e.g., gcc/gfortran) and used with any other Fortran compiler (ifort, nvfortran, etc.)
+   - No Fortran `.mod` files are distributed, which are notoriously incompatible between different compilers
+
+3. **Simplified Distribution**: By avoiding compiler-specific `.mod` files, simple_gpu maintains maximum portability across different Fortran compiler ecosystems.
+
+**Example of a minimal program:**
+
+```fortran
+#include <simple_gpu.F90>
+
+program my_program
+  use gpu
+  implicit none
+  
+  ! Your code here
+  
+end program my_program
+```
+
 ### Data Types
 
 The library provides multidimensional array types for both single and double precision:
@@ -363,6 +398,10 @@ Contributions are welcome! Please ensure:
 - Code follows existing style and conventions
 - All tests pass before submitting
 - New features include appropriate tests
+
+### Adding BLAS Functions
+
+The library currently implements a core set of BLAS operations (DOT, GEMV, GEMM, GEAM). If you need additional BLAS functions (such as AXPY, SCAL, TRSM, SYRK, etc.), contributions are highly encouraged! Adding new BLAS routines follows the established pattern in the codebase and helps make the library more complete and useful for the community.
 
 ## Building Documentation
 
