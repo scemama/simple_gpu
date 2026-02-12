@@ -250,6 +250,8 @@ call gpu_ddot(handle, n, x%f(1), 1, y%f(1), 1, result)
 call gpu_ddot(handle, n, x, 1, y, 1, result)
 ```
 
+**Technical Note:** The library wrappers use Fortran's `c_loc()` intrinsic to obtain the memory address of the array element. By passing `x%f(1)`, you're providing the first element as a scalar with the `target` attribute, which `c_loc()` then converts to the appropriate C pointer for the underlying BLAS routines.
+
 ### Using Different Library Versions
 
 To use a specific library version, link your application against the desired library:
