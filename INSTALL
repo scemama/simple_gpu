@@ -1,0 +1,319 @@
+# Installation Instructions for simple_gpu
+
+## Quick Start
+
+If you downloaded a release tarball:
+
+```bash
+./configure
+make
+make check
+sudo make install
+```
+
+## Building from Git
+
+If you cloned the repository from Git, you need to generate the configure script first:
+
+```bash
+autoreconf -i
+./configure
+make
+make check
+sudo make install
+```
+
+## Prerequisites
+
+### Required Dependencies
+
+- **C compiler**: gcc, clang, or any C11-compatible compiler
+- **Fortran compiler**: gfortran (GNU Fortran), ifort (Intel Fortran), or compatible
+- **BLAS library**: OpenBLAS, Intel MKL, or reference BLAS implementation
+- **Autotools** (for building from Git):
+  - autoconf (>= 2.69)
+  - automake (>= 1.15)
+  - libtool (>= 2.4)
+
+### Optional Dependencies (for NVIDIA GPU support)
+
+- **NVIDIA CUDA Toolkit** (>= 10.0 recommended)
+- **NVIDIA cuBLAS library** (included with CUDA Toolkit)
+- **CUDA-capable GPU**
+
+## Installation on Different Systems
+
+### Ubuntu/Debian
+
+Install required dependencies:
+```bash
+sudo apt-get update
+sudo apt-get install build-essential gfortran libopenblas-dev
+```
+
+For NVIDIA GPU support:
+```bash
+# Install CUDA Toolkit from NVIDIA's repository
+# See: https://developer.nvidia.com/cuda-downloads
+```
+
+For building from Git:
+```bash
+sudo apt-get install autoconf automake libtool
+```
+
+### Fedora/RHEL/CentOS
+
+Install required dependencies:
+```bash
+sudo dnf install gcc gfortran openblas-devel
+```
+
+For building from Git:
+```bash
+sudo dnf install autoconf automake libtool
+```
+
+### macOS (with Homebrew)
+
+Install required dependencies:
+```bash
+brew install gcc openblas
+```
+
+For building from Git:
+```bash
+brew install autoconf automake libtool
+```
+
+## Configuration Options
+
+The configure script supports several options to customize the build:
+
+### Disabling NVIDIA GPU Library
+
+To build only the CPU version (even if CUDA is available):
+```bash
+./configure --disable-nvidia
+```
+
+### Specifying CUDA Installation Directory
+
+If CUDA is installed in a non-standard location:
+```bash
+./configure --with-cuda=/path/to/cuda
+```
+
+Example:
+```bash
+./configure --with-cuda=/opt/cuda-11.8
+```
+
+### Specifying BLAS Library
+
+To use a specific BLAS library:
+```bash
+./configure --with-blas="-lmkl_rt"
+```
+
+Examples:
+```bash
+# Use Intel MKL
+./configure --with-blas="-lmkl_rt"
+
+# Use OpenBLAS
+./configure --with-blas="-lopenblas"
+
+# Use custom BLAS location
+./configure --with-blas="-L/opt/blas/lib -lblas"
+```
+
+### Installation Prefix
+
+To install in a custom location (default is /usr/local):
+```bash
+./configure --prefix=$HOME/local
+```
+
+### Combining Options
+
+You can combine multiple options:
+```bash
+./configure --prefix=$HOME/local --with-cuda=/opt/cuda --with-blas="-lopenblas"
+```
+
+## Build and Installation Steps
+
+### 1. Configure
+
+Run the configure script with your desired options:
+```bash
+./configure [OPTIONS]
+```
+
+The configure script will:
+- Detect available compilers
+- Check for required libraries
+- Auto-detect CUDA/cuBLAS if available
+- Display a configuration summary
+
+Example output:
+```
+========================================
+ simple_gpu configuration summary
+========================================
+  CC:              gcc
+  FC:              gfortran
+  CFLAGS:          -g -O2
+  FCFLAGS:         -g -O2
+  BLAS_LIBS:       -lopenblas
+
+  NVIDIA GPU:      enabled
+  NVCC:            /usr/local/cuda/bin/nvcc
+  CUDA_PATH:       /usr/local/cuda
+  CUDA_CFLAGS:     -I/usr/local/cuda/include
+  CUDA_LDFLAGS:    -L/usr/local/cuda/lib64
+  CUDA_LIBS:       -lcudart -lcublas
+========================================
+```
+
+### 2. Build
+
+Compile the libraries:
+```bash
+make
+```
+
+This will create:
+- `src/.libs/libgpu_cpu.so` - CPU-only library
+- `src/.libs/libgpu_nvidia.so` - NVIDIA GPU library (if CUDA was detected)
+
+### 3. Test
+
+Run the test suite:
+```bash
+make check
+```
+
+For verbose output:
+```bash
+make check VERBOSE=1
+```
+
+### 4. Install
+
+Install the libraries and headers:
+```bash
+sudo make install
+```
+
+Or, if you specified a custom prefix:
+```bash
+make install
+```
+
+This will install:
+- Libraries to `$PREFIX/lib/`
+- Headers to `$PREFIX/include/`
+
+## Troubleshooting
+
+### Configure fails with "BLAS library not found"
+
+Make sure you have a BLAS library installed:
+```bash
+# Ubuntu/Debian
+sudo apt-get install libopenblas-dev
+
+# Fedora/RHEL
+sudo dnf install openblas-devel
+```
+
+Or specify the BLAS library manually:
+```bash
+./configure --with-blas="-lopenblas"
+```
+
+### Configure detects CUDA but you don't want it
+
+Explicitly disable NVIDIA support:
+```bash
+./configure --disable-nvidia
+```
+
+### Libraries not found at runtime
+
+After installation, you may need to update your library path:
+```bash
+# Add to ~/.bashrc or ~/.profile
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# Or for custom prefix
+export LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
+```
+
+On Linux, you can also update the system library cache:
+```bash
+sudo ldconfig
+```
+
+### Build from Git fails with "configure: command not found"
+
+You need to generate the configure script first:
+```bash
+autoreconf -i
+```
+
+### Tests fail with BLAS-related errors
+
+Ensure the BLAS library you linked against is properly installed and accessible:
+```bash
+ldd src/.libs/libgpu_cpu.so
+```
+
+This should show that all dependencies are resolved.
+
+## Verifying the Installation
+
+After installation, verify that the libraries are correctly installed:
+
+```bash
+# Check if libraries are installed
+ls -l $PREFIX/lib/libgpu_*.so*
+
+# Check if header is installed
+ls -l $PREFIX/include/gpu.h
+
+# Test linking against the library
+cat > test.f90 << 'EOF'
+program test
+  use gpu
+  integer :: n
+  n = gpu_ndevices()
+  print *, "Number of GPUs:", n
+end program test
+EOF
+
+gfortran test.f90 -lgpu_cpu -L$PREFIX/lib -I$PREFIX/include
+./a.out
+rm -f test.f90 a.out
+```
+
+## Uninstalling
+
+To remove the installed files:
+```bash
+sudo make uninstall
+```
+
+## Getting Help
+
+If you encounter issues:
+
+1. Check that all prerequisites are installed
+2. Review the configuration summary output
+3. Check `config.log` for detailed error messages
+4. Ensure CUDA libraries are in your library path (for GPU version)
+5. Run tests with `make check` to verify the build
+
+For additional help, please file an issue on the GitHub repository.
