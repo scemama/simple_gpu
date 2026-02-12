@@ -7,5 +7,5 @@ Name: simple_gpu_cpu
 Description: Simple GPU - Fortran GPU Computing Library (CPU version)
 Version: @VERSION@
 Requires:
-Libs: -L${libdir} -lsimplegpu_cpu @BLAS_LIBS@
+Libs: -L${libdir} -lsimple_gpu-cpu @BLAS_LIBS@
 Cflags: -I${includedir}
