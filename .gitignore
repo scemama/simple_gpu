@@ -1,0 +1,48 @@
+# Autotools generated files
+/autom4te.cache/
+/aclocal.m4
+/compile
+/config.guess
+/config.h.in
+/config.log
+/config.status
+/config.sub
+/configure
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/missing
+/stamp-h1
+/config.h
+Makefile
+Makefile.in
+.deps/
+.libs/
+
+# Build artifacts
+*.o
+*.lo
+*.la
+*.so
+*.so.*
+*.a
+*.mod
+*.exe
+
+# Test outputs
+tests/*.log
+tests/*.trs
+tests/test_gpu_comparison
+
+# Editor and IDE files
+*~
+*.swp
+*.swo
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
