@@ -71,10 +71,40 @@ if test "x$enable_nvidia" = "xyes"; then
       if test "x$HAVE_CUDART" = "xyes" -a "x$HAVE_CUBLAS" = "xyes"; then
         BUILD_NVIDIA=yes
         CUDA_LIBS="-lcudart -lcublas"
+        
+        # When NVIDIA suite is detected, prefer GCC/Gfortran if available
+        # These compilers are already detected, so we just set optimal flags
+        if test "x$CC" = "xgcc"; then
+          # Optimal optimization flags for GCC with CUDA code
+          # -O3: Aggressive optimization
+          # -march=native: Optimize for the current CPU architecture
+          # -ffast-math: Enable fast floating-point optimizations
+          # -funroll-loops: Unroll loops for better performance
+          NVIDIA_CFLAGS="-O3 -march=native -ffast-math -funroll-loops"
+          AC_MSG_NOTICE([Using GCC with optimal flags for NVIDIA build: $NVIDIA_CFLAGS])
+        else
+          NVIDIA_CFLAGS=""
+        fi
+        
+        if test "x$FC" = "xgfortran"; then
+          # Optimal optimization flags for Gfortran with CUDA code
+          # -O3: Aggressive optimization
+          # -march=native: Optimize for the current CPU architecture
+          # -ffast-math: Enable fast floating-point optimizations
+          # -funroll-loops: Unroll loops for better performance
+          # -ftree-vectorize: Enable tree vectorization
+          NVIDIA_FCFLAGS="-O3 -march=native -ffast-math -funroll-loops -ftree-vectorize"
+          AC_MSG_NOTICE([Using Gfortran with optimal flags for NVIDIA build: $NVIDIA_FCFLAGS])
+        else
+          NVIDIA_FCFLAGS=""
+        fi
+        
         AC_SUBST([CUDA_CFLAGS])
         AC_SUBST([CUDA_LDFLAGS])
         AC_SUBST([CUDA_LIBS])
         AC_SUBST([CUDA_PATH])
+        AC_SUBST([NVIDIA_CFLAGS])
+        AC_SUBST([NVIDIA_FCFLAGS])
       else
         AC_MSG_WARN([CUDA libraries not found. NVIDIA GPU library will not be built.])
       fi
@@ -115,6 +145,12 @@ if test "x$BUILD_NVIDIA" = "xyes"; then
   echo "  CUDA_CFLAGS:     $CUDA_CFLAGS"
   echo "  CUDA_LDFLAGS:    $CUDA_LDFLAGS"
   echo "  CUDA_LIBS:       $CUDA_LIBS"
+  if test "x$NVIDIA_CFLAGS" != "x"; then
+    echo "  NVIDIA_CFLAGS:   $NVIDIA_CFLAGS (optimized for GCC)"
+  fi
+  if test "x$NVIDIA_FCFLAGS" != "x"; then
+    echo "  NVIDIA_FCFLAGS:  $NVIDIA_FCFLAGS (optimized for Gfortran)"
+  fi
 else
   echo "  NVIDIA GPU:      disabled"
 fi

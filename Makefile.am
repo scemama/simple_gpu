@@ -27,8 +27,8 @@ libsimple_gpu_cpu_la_LDFLAGS = -version-info 1:0:0
 if BUILD_NVIDIA
 lib_LTLIBRARIES += libsimple_gpu-nvidia.la
 libsimple_gpu_nvidia_la_SOURCES = src/gpu_nvidia.c include/simple_gpu.F90
-libsimple_gpu_nvidia_la_CFLAGS = -I$(top_srcdir)/include $(CUDA_CFLAGS)
-libsimple_gpu_nvidia_la_FCFLAGS =
+libsimple_gpu_nvidia_la_CFLAGS = -I$(top_srcdir)/include $(CUDA_CFLAGS) $(NVIDIA_CFLAGS)
+libsimple_gpu_nvidia_la_FCFLAGS = $(NVIDIA_FCFLAGS)
 libsimple_gpu_nvidia_la_LIBADD = $(CUDA_LIBS)
 libsimple_gpu_nvidia_la_LDFLAGS = -version-info 1:0:0 $(CUDA_LDFLAGS)
 endif
