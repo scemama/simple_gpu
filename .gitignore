@@ -31,12 +31,14 @@ Makefile.in
 *.a
 *.mod
 *.exe
+.dirstamp
 
 # Test outputs
 tests/*.log
 tests/*.trs
 tests/test_gpu_comparison
 tests/test_cpu_basic
+test-suite.log
 
 # Editor and IDE files
 *~
