@@ -116,9 +116,9 @@ void gpu_stream_destroy(cudaStream_t* ptr) {
 }
 
 void gpu_set_stream(cublasHandle_t handle, cudaStream_t stream) {
-  cudaError_t rc = cublasSetStream(handle, stream);
-  if (rc != cudaSuccess) {
-    fprintf(stderr,"cudaSetStream failed: %s\n", cudaGetErrorString(rc));
+  cublasStatus_t rc = cublasSetStream(handle, stream);
+  if (rc != CUBLAS_STATUS_SUCCESS) {
+    fprintf(stderr,"cudaSetStream failed\n");
     assert (rc == cudaSuccess);
   }
 }

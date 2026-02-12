@@ -1,4 +1,4 @@
-program test_cpu_basic
+program test_basic
   use gpu
   use iso_c_binding
   implicit none
@@ -189,4 +189,4 @@ program test_cpu_basic
     call exit(1)
   end if
   
-end program test_cpu_basic
+end program test_basic
