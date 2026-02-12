@@ -63,6 +63,10 @@ void gpu_deallocate(void** ptr) {
   *ptr = NULL;
 }
 
+void gpu_free(void** ptr) {
+  gpu_deallocate(ptr);
+}
+
 
 /* Memory transfer functions */
 
