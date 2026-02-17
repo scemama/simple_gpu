@@ -13,7 +13,10 @@
 
 int gpu_ndevices() {
   int ngpus;
-  hipGetDeviceCount(&ngpus);
+  hipError_t rc = hipGetDeviceCount(&ngpus);
+  if (rc != hipSuccess) {
+    return 0;
+  }
   return ngpus;
 }
 
@@ -52,7 +55,11 @@ void gpu_allocate(void** ptr, const int64_t size) {
 
 void gpu_deallocate(void** ptr) {
   assert (*ptr != NULL);
-  hipFree(*ptr);
+  hipError_t rc = hipFree(*ptr);
+  if (rc != hipSuccess) {
+    fprintf(stderr,"hipFree failed: %s\n", hipGetErrorString(rc));
+    assert (rc == hipSuccess);
+  }
   *ptr = NULL;
 }
 
@@ -137,6 +144,9 @@ void gpu_stream_synchronize(void* stream) {
 
 void gpu_blas_create(hipblasHandle_t* ptr) {
   hipblasStatus_t rc = hipblasCreate(ptr);
+  if (rc != HIPBLAS_STATUS_SUCCESS) {
+    fprintf(stderr,"hipblasCreate failed\n");
+  }
   assert (rc == HIPBLAS_STATUS_SUCCESS);
 }
 
@@ -144,6 +154,9 @@ void gpu_blas_create(hipblasHandle_t* ptr) {
 void gpu_blas_destroy(hipblasHandle_t* ptr) {
   assert (ptr != NULL);
   hipblasStatus_t rc = hipblasDestroy(*ptr);
+  if (rc != HIPBLAS_STATUS_SUCCESS) {
+    fprintf(stderr,"hipblasDestroy failed\n");
+  }
   assert (rc == HIPBLAS_STATUS_SUCCESS);
   *ptr = NULL;
 }
