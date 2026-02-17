@@ -21,6 +21,15 @@ int gpu_ndevices() {
 }
 
 void gpu_set_device(int32_t igpu) {
+ if (igpu < 0) {
+   fprintf(stderr, "gpu_set_device: invalid device index %d (must be >= 0)\n", igpu);
+   return;
+ }
+ int ngpus = gpu_ndevices();
+ if (igpu >= ngpus) {
+   fprintf(stderr, "gpu_set_device: invalid device index %d (only %d devices available)\n", igpu, ngpus);
+   return;
+ }
  hipError_t rc = hipSetDevice((int)igpu);
  if (rc != hipSuccess) {
     fprintf(stderr,"hipSetDevice(%d) failed: %s\n", igpu, hipGetErrorString(rc));

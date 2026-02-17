@@ -101,6 +101,15 @@ void gpu_stream_synchronize(void* stream) {
 
 /* BLAS functions */
 
+/* Helper function to check for int64_t to int32_t conversion overflow */
+static inline bool check_int32_overflow(int64_t value, const char* name) {
+  if (value > INT32_MAX || value < INT32_MIN) {
+    fprintf(stderr, "Integer overflow: %s value %lld exceeds int32_t range\n", name, (long long)value);
+    return true;
+  }
+  return false;
+}
+
 void gpu_blas_create(void** handle) {
   *handle = (void*) malloc(sizeof(char));
 }
@@ -125,9 +134,12 @@ void gpu_ddot(void* handle, const int64_t n, const double* x, const int64_t incx
   incy_ = (int32_t) incy;
 
   /* Check for integer overflows */
-  assert ( (int64_t)    n_ == n   );
-  assert ( (int64_t) incx_ == incx);
-  assert ( (int64_t) incy_ == incy);
+  if (check_int32_overflow(n, "n") || 
+      check_int32_overflow(incx, "incx") || 
+      check_int32_overflow(incy, "incy")) {
+    *result = 0.0;
+    return;
+  }
 
   *result = ddot_(&n_, x, &incx_, y, &incy_);
 }
