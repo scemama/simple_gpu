@@ -9,20 +9,6 @@ AC_PROG_FC
 AM_PROG_AR
 LT_INIT
 
-# Check for required programs
-AC_CHECK_PROG([HAVE_FC], [gfortran], [yes], [no])
-if test "x$HAVE_FC" = "xyes"; then
-  FC=gfortran
-else
-  AC_CHECK_PROG([HAVE_FC], [ifort], [yes], [no])
-  if test "x$HAVE_FC" = "xyes"; then
-    FC=ifort
-  fi
-fi
-
-if test "x$HAVE_FC" = "xno"; then
-  AC_MSG_ERROR([No Fortran compiler found. Please install gfortran or ifort.])
-fi
 
 # Check for BLAS library (required for CPU version)
 AC_ARG_WITH([blas],
