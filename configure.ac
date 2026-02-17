@@ -50,7 +50,7 @@ BUILD_NVIDIA=no
 if test "x$enable_nvidia" = "xyes"; then
 
   # Set up CUDA flags if path is provided
-  if test "x$CUDA_PATH" != "x"; then
+  if test -n "$CUDA_PATH"; then
     CUDA_CFLAGS="-I$CUDA_PATH/include"
     CUDA_LDFLAGS="-L$CUDA_PATH/lib64 -L$CUDA_PATH/lib"
   else
@@ -74,7 +74,7 @@ if test "x$enable_nvidia" = "xyes"; then
   CFLAGS="$OLD_CFLAGS"
   LDFLAGS="$OLD_LDFLAGS"
 
-  if test "x$HAVE_CUDART" = "xyes" -a "x$HAVE_CUBLAS" = "xyes"; then
+  if test "x$HAVE_CUDART" = "xyes" && test "x$HAVE_CUBLAS" = "xyes"; then
     BUILD_NVIDIA=yes
     CUDA_LIBS="-lcudart -lcublas"
     AC_SUBST([CUDA_CFLAGS])
