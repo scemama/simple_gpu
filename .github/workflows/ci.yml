@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler:
+          - cc: gcc
+            fc: gfortran
+          - cc: clang
+            fc: gfortran
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            libtool \
+            ${{ matrix.compiler.cc }} \
+            ${{ matrix.compiler.fc }} \
+            libopenblas-dev
+      
+      - name: Generate configure script
+        run: ./autogen.sh
+      
+      - name: Configure (CPU-only version)
+        run: |
+          ./configure \
+            CC=${{ matrix.compiler.cc }} \
+            FC=${{ matrix.compiler.fc }} \
+            --disable-nvidia \
+            --disable-amd
+      
+      - name: Build
+        run: make -j$(nproc)
+      
+      - name: Run tests
+        run: make check
+      
+      - name: Display test results on failure
+        if: failure()
+        run: |
+          if [ -f tests/test-suite.log ]; then
+            echo "=== Test Suite Log ==="
+            cat tests/test-suite.log
+          fi
+          for log in tests/*.log; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              cat "$log"
+            fi
+          done
