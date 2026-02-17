@@ -31,6 +31,18 @@ AC_ARG_WITH([cuda],
   [CUDA_PATH="$withval"],
   [CUDA_PATH=""])
 
+# Option to disable AMD library
+AC_ARG_ENABLE([amd],
+  [AS_HELP_STRING([--disable-amd], [disable AMD GPU library])],
+  [enable_amd=$enableval],
+  [enable_amd=yes])
+
+# Optional ROCm installation directory
+AC_ARG_WITH([rocm],
+  [AS_HELP_STRING([--with-rocm=DIR], [ROCm installation directory])],
+  [ROCM_PATH="$withval"],
+  [ROCM_PATH=""])
+
 # Check for CUDA/cuBLAS libraries if NVIDIA is enabled
 BUILD_NVIDIA=no
 if test "x$enable_nvidia" = "xyes"; then
@@ -74,11 +86,55 @@ fi
 
 AM_CONDITIONAL([BUILD_NVIDIA], [test "x$BUILD_NVIDIA" = "xyes"])
 
+# Check for ROCm/HIP libraries if AMD is enabled
+BUILD_AMD=no
+if test "x$enable_amd" = "xyes"; then
+
+  # Set up ROCm flags if path is provided
+  if test -n "$ROCM_PATH"; then
+    ROCM_CFLAGS="-I$ROCM_PATH/include"
+    ROCM_LDFLAGS="-L$ROCM_PATH/lib"
+  else
+    ROCM_CFLAGS=""
+    ROCM_LDFLAGS=""
+  fi
+
+  # Save current flags
+  OLD_CFLAGS="$CFLAGS"
+  OLD_LDFLAGS="$LDFLAGS"
+  CFLAGS="$CFLAGS $ROCM_CFLAGS"
+  LDFLAGS="$LDFLAGS $ROCM_LDFLAGS"
+
+  # Check for HIP runtime library
+  AC_CHECK_LIB([amdhip64], [hipMalloc], [HAVE_HIP=yes], [HAVE_HIP=no])
+
+  # Check for hipBLAS library
+  AC_CHECK_LIB([hipblas], [hipblasDgemm], [HAVE_HIPBLAS=yes], [HAVE_HIPBLAS=no], [-lamdhip64])
+
+  # Restore flags
+  CFLAGS="$OLD_CFLAGS"
+  LDFLAGS="$OLD_LDFLAGS"
+
+  if test "x$HAVE_HIP" = "xyes" && test "x$HAVE_HIPBLAS" = "xyes"; then
+    BUILD_AMD=yes
+    ROCM_LIBS="-lamdhip64 -lhipblas"
+    AC_SUBST([ROCM_CFLAGS])
+    AC_SUBST([ROCM_LDFLAGS])
+    AC_SUBST([ROCM_LIBS])
+    AC_SUBST([ROCM_PATH])
+  else
+    AC_MSG_WARN([ROCm libraries not found. AMD GPU library will not be built.])
+  fi
+fi
+
+AM_CONDITIONAL([BUILD_AMD], [test "x$BUILD_AMD" = "xyes"])
+
 # Output files
 AC_CONFIG_FILES([
   Makefile
   pkgconfig/simple_gpu-cpu.pc
   pkgconfig/simple_gpu-nvidia.pc
+  pkgconfig/simple_gpu-amd.pc
 ])
 
 AC_OUTPUT
@@ -102,6 +158,16 @@ if test "x$BUILD_NVIDIA" = "xyes"; then
   echo "  CUDA_LIBS:       $CUDA_LIBS"
 else
   echo "  NVIDIA GPU:      disabled"
+fi
+echo ""
+if test "x$BUILD_AMD" = "xyes"; then
+  echo "  AMD GPU:         enabled"
+  echo "  ROCM_PATH:       $ROCM_PATH"
+  echo "  ROCM_CFLAGS:     $ROCM_CFLAGS"
+  echo "  ROCM_LDFLAGS:    $ROCM_LDFLAGS"
+  echo "  ROCM_LIBS:       $ROCM_LIBS"
+else
+  echo "  AMD GPU:         disabled"
 fi
 echo "========================================"
 echo ""
