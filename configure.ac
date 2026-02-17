@@ -39,67 +39,50 @@ AC_ARG_ENABLE([nvidia],
   [enable_nvidia=$enableval],
   [enable_nvidia=yes])
 
+# Optional CUDA installation directory
+AC_ARG_WITH([cuda],
+  [AS_HELP_STRING([--with-cuda=DIR], [CUDA installation directory])],
+  [CUDA_PATH="$withval"],
+  [CUDA_PATH=""])
+
 # Check for CUDA/cuBLAS libraries if NVIDIA is enabled
 BUILD_NVIDIA=no
 if test "x$enable_nvidia" = "xyes"; then
+
+  # Set up CUDA flags if path is provided
+  if test "x$CUDA_PATH" != "x"; then
+    CUDA_CFLAGS="-I$CUDA_PATH/include"
+    CUDA_LDFLAGS="-L$CUDA_PATH/lib64 -L$CUDA_PATH/lib"
+  else
+    CUDA_CFLAGS=""
+    CUDA_LDFLAGS=""
+  fi
+
+  # Save current flags
+  OLD_CFLAGS="$CFLAGS"
+  OLD_LDFLAGS="$LDFLAGS"
+  CFLAGS="$CFLAGS $CUDA_CFLAGS"
+  LDFLAGS="$LDFLAGS $CUDA_LDFLAGS"
+
   # Check for CUDA runtime library
   AC_CHECK_LIB([cudart], [cudaMalloc], [HAVE_CUDART=yes], [HAVE_CUDART=no])
 
   # Check for cuBLAS library
   AC_CHECK_LIB([cublas], [cublasDgemm], [HAVE_CUBLAS=yes], [HAVE_CUBLAS=no], [-lcudart])
 
-  if test "x${HAVE_CUBLAS}${HAVE_CUDART}" = "xyesyes" ; then
+  # Restore flags
+  CFLAGS="$OLD_CFLAGS"
+  LDFLAGS="$OLD_LDFLAGS"
+
+  if test "x$HAVE_CUDART" = "xyes" -a "x$HAVE_CUBLAS" = "xyes"; then
     BUILD_NVIDIA=yes
     CUDA_LIBS="-lcudart -lcublas"
+    AC_SUBST([CUDA_CFLAGS])
+    AC_SUBST([CUDA_LDFLAGS])
     AC_SUBST([CUDA_LIBS])
+    AC_SUBST([CUDA_PATH])
   else
-    # Check for nvcc compiler
-    AC_CHECK_PROG([NVCC], [nvcc], [nvcc])
-
-    if test "x$NVCC" != "x"; then
-      # Try to find CUDA installation
-      AC_ARG_WITH([cuda],
-        [AS_HELP_STRING([--with-cuda=DIR], [CUDA installation directory])],
-        [CUDA_PATH="$withval"],
-        [CUDA_PATH="/usr/local/cuda"])
-
-      # Check if CUDA path exists
-      if test -d "$CUDA_PATH"; then
-        CUDA_CFLAGS="-I$CUDA_PATH/include"
-        CUDA_LDFLAGS="-L$CUDA_PATH/lib64 -L$CUDA_PATH/lib"
-
-        # Save current flags
-        OLD_CFLAGS="$CFLAGS"
-        OLD_LDFLAGS="$LDFLAGS"
-        CFLAGS="$CFLAGS $CUDA_CFLAGS"
-        LDFLAGS="$LDFLAGS $CUDA_LDFLAGS"
-
-        # Check for CUDA runtime library
-        AC_CHECK_LIB([cudart], [cudaMalloc], [HAVE_CUDART=yes], [HAVE_CUDART=no])
-
-        # Check for cuBLAS library
-        AC_CHECK_LIB([cublas], [cublasDgemm], [HAVE_CUBLAS=yes], [HAVE_CUBLAS=no], [-lcudart])
-
-        # Restore flags
-        CFLAGS="$OLD_CFLAGS"
-        LDFLAGS="$OLD_LDFLAGS"
-
-        if test "x$HAVE_CUDART" = "xyes" -a "x$HAVE_CUBLAS" = "xyes"; then
-          BUILD_NVIDIA=yes
-          CUDA_LIBS="-lcudart -lcublas"
-          AC_SUBST([CUDA_CFLAGS])
-          AC_SUBST([CUDA_LDFLAGS])
-          AC_SUBST([CUDA_LIBS])
-          AC_SUBST([CUDA_PATH])
-        else
-          AC_MSG_WARN([CUDA libraries not found. NVIDIA GPU library will not be built.])
-        fi
-      else
-        AC_MSG_WARN([CUDA installation not found at $CUDA_PATH. NVIDIA GPU library will not be built.])
-      fi
-    else
-      AC_MSG_WARN([nvcc compiler not found. NVIDIA GPU library will not be built.])
-    fi
+    AC_MSG_WARN([CUDA libraries not found. NVIDIA GPU library will not be built.])
   fi
 fi
 
