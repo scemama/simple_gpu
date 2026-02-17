@@ -215,7 +215,8 @@ void gpu_dgemv(hipblasHandle_t handle, const char* transa, const int64_t m, cons
   hipblasOperation_t transa_ = HIPBLAS_OP_N;
   if (*transa == 'T' || *transa == 't') transa_ = HIPBLAS_OP_T;
 
-  hipblasDgemv(handle, transa_, m_, n_, alpha, a, lda_, x, incx_, beta, y, incy_);
+  hipblasStatus_t rc = hipblasDgemv(handle, transa_, m_, n_, alpha, a, lda_, x, incx_, beta, y, incy_);
+  assert (rc == HIPBLAS_STATUS_SUCCESS);
 }
 
 
@@ -244,7 +245,8 @@ void gpu_sgemv(hipblasHandle_t handle, const char* transa, const int64_t m, cons
   hipblasOperation_t transa_ = HIPBLAS_OP_N;
   if (*transa == 'T' || *transa == 't') transa_ = HIPBLAS_OP_T;
 
-  hipblasSgemv(handle, transa_, m_, n_, alpha, a, lda_, x, incx_, beta, y, incy_);
+  hipblasStatus_t rc = hipblasSgemv(handle, transa_, m_, n_, alpha, a, lda_, x, incx_, beta, y, incy_);
+  assert (rc == HIPBLAS_STATUS_SUCCESS);
 }
 
 
@@ -276,7 +278,8 @@ void gpu_dgemm(hipblasHandle_t handle, const char* transa, const char* transb, c
   if (*transa == 'T' || *transa == 't') transa_ = HIPBLAS_OP_T;
   if (*transb == 'T' || *transb == 't') transb_ = HIPBLAS_OP_T;
 
-  hipblasDgemm(handle, transa_, transb_, m_, n_, k_, alpha, a, lda_, b, ldb_, beta, c, ldc_);
+  hipblasStatus_t rc = hipblasDgemm(handle, transa_, transb_, m_, n_, k_, alpha, a, lda_, b, ldb_, beta, c, ldc_);
+  assert (rc == HIPBLAS_STATUS_SUCCESS);
 }
 
 
@@ -309,7 +312,8 @@ void gpu_sgemm(hipblasHandle_t handle, const char* transa, const char* transb, c
   if (*transa == 'T' || *transa == 't') transa_ = HIPBLAS_OP_T;
   if (*transb == 'T' || *transb == 't') transb_ = HIPBLAS_OP_T;
 
-  hipblasSgemm(handle, transa_, transb_, m_, n_, k_, alpha, a, lda_, b, ldb_, beta, c, ldc_);
+  hipblasStatus_t rc = hipblasSgemm(handle, transa_, transb_, m_, n_, k_, alpha, a, lda_, b, ldb_, beta, c, ldc_);
+  assert (rc == HIPBLAS_STATUS_SUCCESS);
 }
 
 
@@ -338,7 +342,8 @@ void gpu_dgeam(hipblasHandle_t handle, const char* transa, const char* transb, c
   if (*transa == 'T' || *transa == 't') transa_ = HIPBLAS_OP_T;
   if (*transb == 'T' || *transb == 't') transb_ = HIPBLAS_OP_T;
 
-  hipblasDgeam(handle, transa_, transb_, m_, n_, alpha, a, lda_, beta, b, ldb_, c, ldc_);
+  hipblasStatus_t rc = hipblasDgeam(handle, transa_, transb_, m_, n_, alpha, a, lda_, beta, b, ldb_, c, ldc_);
+  assert (rc == HIPBLAS_STATUS_SUCCESS);
 
 }
 
@@ -368,6 +373,7 @@ void gpu_sgeam(hipblasHandle_t handle, const char* transa, const char* transb, c
   if (*transa == 'T' || *transa == 't') transa_ = HIPBLAS_OP_T;
   if (*transb == 'T' || *transb == 't') transb_ = HIPBLAS_OP_T;
 
-  hipblasSgeam(handle, transa_, transb_, m_, n_, alpha, a, lda_, beta, b, ldb_, c, ldc_);
+  hipblasStatus_t rc = hipblasSgeam(handle, transa_, transb_, m_, n_, alpha, a, lda_, beta, b, ldb_, c, ldc_);
+  assert (rc == HIPBLAS_STATUS_SUCCESS);
 
 }
