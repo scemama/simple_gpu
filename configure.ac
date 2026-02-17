@@ -4,19 +4,15 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-config])
 
 AM_INIT_AUTOMAKE([foreign -Wall -Werror color-tests parallel-tests silent-rules subdir-objects])
+AC_PROG_F77
 AC_PROG_CC
 AC_PROG_FC
 AM_PROG_AR
 LT_INIT
 
+## BLAS
+AX_BLAS([], [AC_MSG_ERROR([BLAS was not found.])])
 
-# Check for BLAS library (required for CPU version)
-AC_ARG_WITH([blas],
-  [AS_HELP_STRING([--with-blas=LIB], [use BLAS library LIB])],
-  [BLAS_LIBS="$withval"],
-  [AC_CHECK_LIB([openblas], [dgemm_], [BLAS_LIBS="-lopenblas"],
-    [AC_CHECK_LIB([blas], [dgemm_], [BLAS_LIBS="-lblas"],
-      [AC_MSG_ERROR([BLAS library not found. Please install OpenBLAS or specify with --with-blas])])])])
 AC_SUBST([BLAS_LIBS])
 
 # Option to disable NVIDIA library
