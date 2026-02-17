@@ -24,13 +24,21 @@ void gpu_get_memory(size_t* free, size_t* total) {
 /* Allocation functions */
 
 void gpu_allocate(void** ptr, const int64_t n) {
+  if (ptr == NULL) {
+    fprintf(stderr, "gpu_allocate: ptr argument is NULL\n");
+    return;
+  }
   *ptr = malloc((size_t) n);
   if (*ptr == NULL) {
-    perror("Allocation failed");
+    perror("gpu_allocate: malloc failed");
+    assert(*ptr != NULL);
   }
 }
 
 void gpu_deallocate(void** ptr) {
+  if (ptr == NULL || *ptr == NULL) {
+    return;
+  }
   free(*ptr);
   *ptr = NULL;
 }
@@ -43,14 +51,26 @@ void gpu_free(void** ptr) {
 /* Memory transfer functions */
 
 void gpu_upload(const void* cpu_ptr, void* gpu_ptr, const int64_t n) {
+  if (cpu_ptr == NULL || gpu_ptr == NULL) {
+    fprintf(stderr, "gpu_upload: NULL pointer argument\n");
+    return;
+  }
   memcpy(gpu_ptr, cpu_ptr, n);
 }
 
 void gpu_download(const void* gpu_ptr, void* cpu_ptr, const int64_t n) {
+  if (gpu_ptr == NULL || cpu_ptr == NULL) {
+    fprintf(stderr, "gpu_download: NULL pointer argument\n");
+    return;
+  }
   memcpy(cpu_ptr, gpu_ptr, n);
 }
 
 void gpu_copy(const void* gpu_ptr_src, void* gpu_ptr_dest, const int64_t n) {
+  if (gpu_ptr_src == NULL || gpu_ptr_dest == NULL) {
+    fprintf(stderr, "gpu_copy: NULL pointer argument\n");
+    return;
+  }
   memcpy(gpu_ptr_dest, gpu_ptr_src, n);
 }
 

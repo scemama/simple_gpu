@@ -36,29 +36,29 @@ void gpu_get_memory(size_t* free, size_t* total) {
 /* Allocation functions */
 
 void gpu_allocate(void** ptr, const int64_t size) {
+    if (ptr == NULL) {
+      fprintf(stderr, "gpu_allocate: ptr argument is NULL\n");
+      return;
+    }
+
     size_t free, total;
     cudaError_t rc = cudaMemGetInfo( &free, &total );
     if (rc != cudaSuccess) {
       free = INT64_MAX;
     }
 
-//    rc = cudaMallocManaged(ptr, size, cudaMemAttachGlobal);
-      rc= cudaMalloc(ptr, size);
+    rc = cudaMalloc(ptr, size);
 
-//    /* Use managed memory if it does not fit on the GPU */
-//    if (size < free && size < total/2) {
-//      rc= cudaMalloc(ptr, size);
-//    } else {
-//      rc = cudaMallocManaged(ptr, size, cudaMemAttachGlobal);
-//    }
     if (rc != cudaSuccess) {
-      fprintf(stderr,"cudaMallocManaged failed: %s\n", cudaGetErrorString(rc));
+      fprintf(stderr,"cudaMalloc failed: %s\n", cudaGetErrorString(rc));
       assert (rc == cudaSuccess);
     }
 }
 
 void gpu_deallocate(void** ptr) {
-  assert (*ptr != NULL);
+  if (ptr == NULL || *ptr == NULL) {
+    return;
+  }
   cudaFree(*ptr);
   *ptr = NULL;
 }
@@ -71,6 +71,10 @@ void gpu_free(void** ptr) {
 /* Memory transfer functions */
 
 void gpu_upload(const void* cpu_ptr, void* gpu_ptr, const int64_t n) {
+ if (cpu_ptr == NULL || gpu_ptr == NULL) {
+   fprintf(stderr, "gpu_upload: NULL pointer argument\n");
+   return;
+ }
  cudaError_t rc = cudaMemcpy (gpu_ptr, cpu_ptr, n, cudaMemcpyHostToDevice);
  if (rc != cudaSuccess) {
     fprintf(stderr,"cudaMemcpy (upload) failed: %s\n", cudaGetErrorString(rc));
@@ -79,6 +83,10 @@ void gpu_upload(const void* cpu_ptr, void* gpu_ptr, const int64_t n) {
 }
 
 void gpu_download(const void* gpu_ptr, void* cpu_ptr, const int64_t n) {
+ if (gpu_ptr == NULL || cpu_ptr == NULL) {
+   fprintf(stderr, "gpu_download: NULL pointer argument\n");
+   return;
+ }
  cudaError_t rc = cudaMemcpy (cpu_ptr, gpu_ptr, n, cudaMemcpyDeviceToHost);
  if (rc != cudaSuccess) {
     fprintf(stderr,"cudaMemcpy (download) failed: %s\n", cudaGetErrorString(rc));
@@ -87,6 +95,10 @@ void gpu_download(const void* gpu_ptr, void* cpu_ptr, const int64_t n) {
 }
 
 void gpu_copy(const void* gpu_ptr_src, void* gpu_ptr_dest, const int64_t n) {
+ if (gpu_ptr_src == NULL || gpu_ptr_dest == NULL) {
+   fprintf(stderr, "gpu_copy: NULL pointer argument\n");
+   return;
+ }
  cudaError_t rc = cudaMemcpy (gpu_ptr_dest, gpu_ptr_src, n, cudaMemcpyDeviceToDevice);
  if (rc != cudaSuccess) {
    fprintf(stderr,"cudaMemcpy (copy) failed: %s\n", cudaGetErrorString(rc));
@@ -118,8 +130,8 @@ void gpu_stream_destroy(cudaStream_t* ptr) {
 void gpu_set_stream(cublasHandle_t handle, cudaStream_t stream) {
   cublasStatus_t rc = cublasSetStream(handle, stream);
   if (rc != CUBLAS_STATUS_SUCCESS) {
-    fprintf(stderr,"cudaSetStream failed\n");
-    assert (rc == cudaSuccess);
+    fprintf(stderr,"cublasSetStream failed\n");
+    assert (rc == CUBLAS_STATUS_SUCCESS);
   }
 }
 
