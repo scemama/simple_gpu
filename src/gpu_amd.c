@@ -112,7 +112,7 @@ void gpu_set_stream(hipblasHandle_t handle, hipStream_t stream) {
   hipblasStatus_t rc = hipblasSetStream(handle, stream);
   if (rc != HIPBLAS_STATUS_SUCCESS) {
     fprintf(stderr,"hipblasSetStream failed\n");
-    assert (rc == hipSuccess);
+    assert (rc == HIPBLAS_STATUS_SUCCESS);
   }
 }
 
@@ -145,7 +145,7 @@ void gpu_blas_destroy(hipblasHandle_t* ptr) {
   assert (ptr != NULL);
   hipblasStatus_t rc = hipblasDestroy(*ptr);
   assert (rc == HIPBLAS_STATUS_SUCCESS);
-  ptr = NULL;
+  *ptr = NULL;
 }
 
 
