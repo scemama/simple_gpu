@@ -21,6 +21,15 @@ int gpu_ndevices() {
 }
 
 void gpu_set_device(int32_t igpu) {
+ if (igpu < 0) {
+   fprintf(stderr, "gpu_set_device: invalid device index %d (must be >= 0)\n", igpu);
+   return;
+ }
+ int ngpus = gpu_ndevices();
+ if (igpu >= ngpus) {
+   fprintf(stderr, "gpu_set_device: invalid device index %d (only %d devices available)\n", igpu, ngpus);
+   return;
+ }
  hipError_t rc = hipSetDevice((int)igpu);
  if (rc != hipSuccess) {
     fprintf(stderr,"hipSetDevice(%d) failed: %s\n", igpu, hipGetErrorString(rc));
@@ -39,6 +48,11 @@ void gpu_get_memory(size_t* free, size_t* total) {
 /* Allocation functions */
 
 void gpu_allocate(void** ptr, const int64_t size) {
+    if (ptr == NULL) {
+      fprintf(stderr, "gpu_allocate: ptr argument is NULL\n");
+      return;
+    }
+
     size_t free, total;
     hipError_t rc = hipMemGetInfo( &free, &total );
     if (rc != hipSuccess) {
@@ -54,7 +68,9 @@ void gpu_allocate(void** ptr, const int64_t size) {
 }
 
 void gpu_deallocate(void** ptr) {
-  assert (*ptr != NULL);
+  if (ptr == NULL || *ptr == NULL) {
+    return;
+  }
   hipError_t rc = hipFree(*ptr);
   if (rc != hipSuccess) {
     fprintf(stderr,"hipFree failed: %s\n", hipGetErrorString(rc));
@@ -71,6 +87,10 @@ void gpu_free(void** ptr) {
 /* Memory transfer functions */
 
 void gpu_upload(const void* cpu_ptr, void* gpu_ptr, const int64_t n) {
+ if (cpu_ptr == NULL || gpu_ptr == NULL) {
+   fprintf(stderr, "gpu_upload: NULL pointer argument\n");
+   return;
+ }
  hipError_t rc = hipMemcpy (gpu_ptr, cpu_ptr, n, hipMemcpyHostToDevice);
  if (rc != hipSuccess) {
     fprintf(stderr,"hipMemcpy (upload) failed: %s\n", hipGetErrorString(rc));
@@ -79,6 +99,10 @@ void gpu_upload(const void* cpu_ptr, void* gpu_ptr, const int64_t n) {
 }
 
 void gpu_download(const void* gpu_ptr, void* cpu_ptr, const int64_t n) {
+ if (gpu_ptr == NULL || cpu_ptr == NULL) {
+   fprintf(stderr, "gpu_download: NULL pointer argument\n");
+   return;
+ }
  hipError_t rc = hipMemcpy (cpu_ptr, gpu_ptr, n, hipMemcpyDeviceToHost);
  if (rc != hipSuccess) {
     fprintf(stderr,"hipMemcpy (download) failed: %s\n", hipGetErrorString(rc));
@@ -87,6 +111,10 @@ void gpu_download(const void* gpu_ptr, void* cpu_ptr, const int64_t n) {
 }
 
 void gpu_copy(const void* gpu_ptr_src, void* gpu_ptr_dest, const int64_t n) {
+ if (gpu_ptr_src == NULL || gpu_ptr_dest == NULL) {
+   fprintf(stderr, "gpu_copy: NULL pointer argument\n");
+   return;
+ }
  hipError_t rc = hipMemcpy (gpu_ptr_dest, gpu_ptr_src, n, hipMemcpyDeviceToDevice);
  if (rc != hipSuccess) {
    fprintf(stderr,"hipMemcpy (copy) failed: %s\n", hipGetErrorString(rc));
@@ -143,11 +171,15 @@ void gpu_stream_synchronize(void* stream) {
 /* BLAS functions */
 
 void gpu_blas_create(hipblasHandle_t* ptr) {
+  if (ptr == NULL) {
+    fprintf(stderr, "gpu_blas_create: ptr argument is NULL\n");
+    return;
+  }
   hipblasStatus_t rc = hipblasCreate(ptr);
   if (rc != HIPBLAS_STATUS_SUCCESS) {
     fprintf(stderr,"hipblasCreate failed\n");
+    assert (rc == HIPBLAS_STATUS_SUCCESS);
   }
-  assert (rc == HIPBLAS_STATUS_SUCCESS);
 }
 
 

@@ -24,13 +24,21 @@ void gpu_get_memory(size_t* free, size_t* total) {
 /* Allocation functions */
 
 void gpu_allocate(void** ptr, const int64_t n) {
+  if (ptr == NULL) {
+    fprintf(stderr, "gpu_allocate: ptr argument is NULL\n");
+    return;
+  }
   *ptr = malloc((size_t) n);
   if (*ptr == NULL) {
-    perror("Allocation failed");
+    perror("gpu_allocate: malloc failed");
+    assert(*ptr != NULL);
   }
 }
 
 void gpu_deallocate(void** ptr) {
+  if (ptr == NULL || *ptr == NULL) {
+    return;
+  }
   free(*ptr);
   *ptr = NULL;
 }
@@ -43,14 +51,26 @@ void gpu_free(void** ptr) {
 /* Memory transfer functions */
 
 void gpu_upload(const void* cpu_ptr, void* gpu_ptr, const int64_t n) {
+  if (cpu_ptr == NULL || gpu_ptr == NULL) {
+    fprintf(stderr, "gpu_upload: NULL pointer argument\n");
+    return;
+  }
   memcpy(gpu_ptr, cpu_ptr, n);
 }
 
 void gpu_download(const void* gpu_ptr, void* cpu_ptr, const int64_t n) {
+  if (gpu_ptr == NULL || cpu_ptr == NULL) {
+    fprintf(stderr, "gpu_download: NULL pointer argument\n");
+    return;
+  }
   memcpy(cpu_ptr, gpu_ptr, n);
 }
 
 void gpu_copy(const void* gpu_ptr_src, void* gpu_ptr_dest, const int64_t n) {
+  if (gpu_ptr_src == NULL || gpu_ptr_dest == NULL) {
+    fprintf(stderr, "gpu_copy: NULL pointer argument\n");
+    return;
+  }
   memcpy(gpu_ptr_dest, gpu_ptr_src, n);
 }
 
@@ -81,6 +101,20 @@ void gpu_stream_synchronize(void* stream) {
 
 /* BLAS functions */
 
+/**
+ * @brief Check if an int64_t value can be safely converted to int32_t
+ * @param value The int64_t value to check
+ * @param name The name of the parameter (for error messages)
+ * @return true if overflow would occur, false otherwise
+ */
+static inline bool check_int32_overflow(int64_t value, const char* name) {
+  if (value > INT32_MAX || value < INT32_MIN) {
+    fprintf(stderr, "Integer overflow: %s value %lld exceeds int32_t range\n", name, (long long)value);
+    return true;
+  }
+  return false;
+}
+
 void gpu_blas_create(void** handle) {
   *handle = (void*) malloc(sizeof(char));
 }
@@ -105,9 +139,12 @@ void gpu_ddot(void* handle, const int64_t n, const double* x, const int64_t incx
   incy_ = (int32_t) incy;
 
   /* Check for integer overflows */
-  assert ( (int64_t)    n_ == n   );
-  assert ( (int64_t) incx_ == incx);
-  assert ( (int64_t) incy_ == incy);
+  if (check_int32_overflow(n, "n") || 
+      check_int32_overflow(incx, "incx") || 
+      check_int32_overflow(incy, "incy")) {
+    *result = 0.0;
+    return;
+  }
 
   *result = ddot_(&n_, x, &incx_, y, &incy_);
 }
