@@ -21,7 +21,7 @@ int gpu_ndevices() {
 }
 
 void gpu_set_device(int32_t igpu) {
- hipError_t rc = hipSetDevice((int) igpu);
+ hipError_t rc = hipSetDevice((int)igpu);
  if (rc != hipSuccess) {
     fprintf(stderr,"hipSetDevice(%d) failed: %s\n", igpu, hipGetErrorString(rc));
     assert (rc == hipSuccess);
@@ -167,9 +167,9 @@ void gpu_ddot(hipblasHandle_t handle, const int64_t n, const double* x, const in
   /* Convert to int */
   int n_, incx_, incy_;
 
-  n_    = (int) n;
-  incx_ = (int) incx;
-  incy_ = (int) incy;
+  n_    = (int)n;
+  incx_ = (int)incx;
+  incy_ = (int)incy;
 
   assert ( (int64_t)    n_ == n   );
   assert ( (int64_t) incx_ == incx);
@@ -187,19 +187,17 @@ void gpu_sdot(hipblasHandle_t handle, const int64_t n, const float* x, const int
   /* Convert to int */
   int n_, incx_, incy_;
 
-  n_    = (int) n;
-  incx_ = (int) incx;
-  incy_ = (int) incy;
+  n_    = (int)n;
+  incx_ = (int)incx;
+  incy_ = (int)incy;
 
   /* Check for integer overflows */
   assert ( (int64_t)    n_ == n   );
   assert ( (int64_t) incx_ == incx);
   assert ( (int64_t) incy_ == incy);
 
-  float result_ = 0.;
-  hipblasStatus_t rc = hipblasSdot(handle, n_, x, incx_, y, incy_, &result_);
+  hipblasStatus_t rc = hipblasSdot(handle, n_, x, incx_, y, incy_, result);
   assert (rc == HIPBLAS_STATUS_SUCCESS);
-  *result = result_;
 }
 
 
@@ -212,11 +210,11 @@ void gpu_dgemv(hipblasHandle_t handle, const char* transa, const int64_t m, cons
   /* Convert to int */
   int m_, n_, lda_, incx_, incy_;
 
-  m_    = (int) m;
-  n_    = (int) n;
-  lda_  = (int) lda;
-  incx_ = (int) incx;
-  incy_ = (int) incy;
+  m_    = (int)m;
+  n_    = (int)n;
+  lda_  = (int)lda;
+  incx_ = (int)incx;
+  incy_ = (int)incy;
 
   /* Check for integer overflows */
   assert ( (int64_t)    m_ == m   );
@@ -242,11 +240,11 @@ void gpu_sgemv(hipblasHandle_t handle, const char* transa, const int64_t m, cons
   /* Convert to int */
   int m_, n_, lda_, incx_, incy_;
 
-  m_    = (int) m;
-  n_    = (int) n;
-  lda_  = (int) lda;
-  incx_ = (int) incx;
-  incy_ = (int) incy;
+  m_    = (int)m;
+  n_    = (int)n;
+  lda_  = (int)lda;
+  incx_ = (int)incx;
+  incy_ = (int)incy;
 
   /* Check for integer overflows */
   assert ( (int64_t)    m_ == m   );
@@ -271,12 +269,12 @@ void gpu_dgemm(hipblasHandle_t handle, const char* transa, const char* transb, c
   /* Convert to int */
   int m_, n_, k_, lda_, ldb_, ldc_;
 
-  m_   = (int) m;
-  n_   = (int) n;
-  k_   = (int) k;
-  lda_ = (int) lda;
-  ldb_ = (int) ldb;
-  ldc_ = (int) ldc;
+  m_   = (int)m;
+  n_   = (int)n;
+  k_   = (int)k;
+  lda_ = (int)lda;
+  ldb_ = (int)ldb;
+  ldc_ = (int)ldc;
 
   /* Check for integer overflows */
   assert ( (int64_t)   m_ == m  );
@@ -305,12 +303,12 @@ void gpu_sgemm(hipblasHandle_t handle, const char* transa, const char* transb, c
   /* Convert to int */
   int m_, n_, k_, lda_, ldb_, ldc_;
 
-  m_   = (int) m;
-  n_   = (int) n;
-  k_   = (int) k;
-  lda_ = (int) lda;
-  ldb_ = (int) ldb;
-  ldc_ = (int) ldc;
+  m_   = (int)m;
+  n_   = (int)n;
+  k_   = (int)k;
+  lda_ = (int)lda;
+  ldb_ = (int)ldb;
+  ldc_ = (int)ldc;
 
   /* Check for integer overflows */
   assert ( (int64_t)   m_ == m  );
@@ -337,11 +335,11 @@ void gpu_dgeam(hipblasHandle_t handle, const char* transa, const char* transb, c
   /* Convert to int */
   int m_, n_, lda_, ldb_, ldc_;
 
-  m_   = (int) m;
-  n_   = (int) n;
-  lda_ = (int) lda;
-  ldb_ = (int) ldb;
-  ldc_ = (int) ldc;
+  m_   = (int)m;
+  n_   = (int)n;
+  lda_ = (int)lda;
+  ldb_ = (int)ldb;
+  ldc_ = (int)ldc;
 
   /* Check for integer overflows */
   assert ( (int64_t)   m_ == m  );
@@ -368,11 +366,11 @@ void gpu_sgeam(hipblasHandle_t handle, const char* transa, const char* transb, c
   /* Convert to int */
   int m_, n_, lda_, ldb_, ldc_;
 
-  m_   = (int) m;
-  n_   = (int) n;
-  lda_ = (int) lda;
-  ldb_ = (int) ldb;
-  ldc_ = (int) ldc;
+  m_   = (int)m;
+  n_   = (int)n;
+  lda_ = (int)lda;
+  ldb_ = (int)ldb;
+  ldc_ = (int)ldc;
 
   /* Check for integer overflows */
   assert ( (int64_t)   m_ == m  );
