@@ -10,11 +10,11 @@ A simple and easy-to-use library for GPU computing in Fortran, providing transpa
 
 Simple GPU is a library designed to simplify GPU computing in Fortran applications. It provides:
 
-- **Dual implementation**: CPU-only version using standard BLAS, and GPU-accelerated version using NVIDIA cuBLAS
+- **Dual implementation**: CPU-only version using standard BLAS, and GPU-accelerated version using NVIDIA cuBLAS or AMD hipBLAS
 - **Transparent interface**: Same Fortran API for both CPU and GPU versions
 - **Memory management**: Easy GPU memory allocation and data transfer
 - **BLAS operations**: Common BLAS operations (GEMM, GEMV, DOT, GEAM) for both single and double precision
-- **Stream support**: Asynchronous operations through CUDA streams
+- **Stream support**: Asynchronous operations through CUDA or HIP streams
 
 ## Features
 
@@ -64,6 +64,11 @@ All BLAS operations have variants that accept 64-bit integers for dimensions. Th
 - NVIDIA cuBLAS library
 - CUDA-capable GPU
 
+#### For AMD GPU version (optional):
+- AMD ROCm platform
+- hipBLAS library
+- ROCm-capable GPU
+
 ### Building from Source
 
 1. **Generate configure script** (if building from git):
@@ -81,15 +86,20 @@ All BLAS operations have variants that accept 64-bit integers for dimensions. Th
    **Configuration options**:
    - `--disable-nvidia`: Disable NVIDIA GPU library even if CUDA is available
    - `--with-cuda=DIR`: Specify CUDA installation directory (default: `/usr/local/cuda`)
+   - `--disable-amd`: Disable AMD GPU library even if ROCm is available
+   - `--with-rocm=DIR`: Specify ROCm installation directory (default: auto-detect)
    - `--with-blas=LIB`: Specify BLAS library to use
    
    **Example configurations**:
    ```bash
    # CPU version only
-   ./configure --disable-nvidia
+   ./configure --disable-nvidia --disable-amd
    
    # Specify CUDA location
    ./configure --with-cuda=/opt/cuda
+   
+   # Specify ROCm location
+   ./configure --with-rocm=/opt/rocm
    
    # Use specific BLAS library
    ./configure --with-blas="-lmkl_rt"
@@ -112,7 +122,7 @@ All BLAS operations have variants that accept 64-bit integers for dimensions. Th
 
 ## Library Versions
 
-Simple GPU provides two shared libraries:
+Simple GPU provides three shared libraries:
 
 1. **libsimple_gpu-cpu.so**: CPU-only version
    - Uses standard BLAS library
@@ -124,7 +134,12 @@ Simple GPU provides two shared libraries:
    - Requires CUDA-capable GPU
    - Provides GPU acceleration for supported operations
 
-Both libraries provide the same Fortran interface, allowing seamless switching between CPU and GPU implementations.
+3. **libsimple_gpu-amd.so**: AMD GPU version (if ROCm is available)
+   - Uses AMD hipBLAS library
+   - Requires ROCm-capable GPU
+   - Provides GPU acceleration for supported operations
+
+All libraries provide the same Fortran interface, allowing seamless switching between CPU and GPU implementations.
 
 ## Usage
 
@@ -324,6 +339,9 @@ gfortran -o myapp myapp.f90 -lsimple_gpu-cpu
 
 # GPU version (NVIDIA)
 gfortran -o myapp myapp.f90 -lsimple_gpu-nvidia
+
+# GPU version (AMD)
+gfortran -o myapp myapp.f90 -lsimple_gpu-amd
 ```
 
 ## Testing
@@ -371,12 +389,17 @@ Specify BLAS library explicitly:
 
 ### Runtime errors with GPU version
 
-1. Ensure NVIDIA drivers are properly installed
-2. Check that CUDA libraries are in your library path:
+1. Ensure NVIDIA drivers are properly installed (for NVIDIA GPUs)
+2. Ensure ROCm drivers are properly installed (for AMD GPUs)
+3. Check that CUDA libraries are in your library path:
    ```bash
    export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
    ```
-3. Verify GPU is accessible with `nvidia-smi`
+4. Check that ROCm libraries are in your library path:
+   ```bash
+   export LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
+   ```
+5. Verify GPU is accessible with `nvidia-smi` (NVIDIA) or `rocm-smi` (AMD)
 
 ## Contributing
 
