@@ -41,6 +41,12 @@ sudo make install
 - **NVIDIA cuBLAS library** (included with CUDA Toolkit)
 - **CUDA-capable GPU**
 
+### Optional Dependencies (for AMD GPU support)
+
+- **AMD ROCm platform** (>= 4.0 recommended)
+- **hipBLAS library** (included with ROCm)
+- **ROCm-capable GPU**
+
 ## Installation on Different Systems
 
 ### Ubuntu/Debian
@@ -55,6 +61,12 @@ For NVIDIA GPU support:
 ```bash
 # Install CUDA Toolkit from NVIDIA's repository
 # See: https://developer.nvidia.com/cuda-downloads
+```
+
+For AMD GPU support:
+```bash
+# Install ROCm from AMD's repository
+# See: https://rocmdocs.amd.com/en/latest/Installation_Guide/Installation-Guide.html
 ```
 
 For building from Git:
@@ -97,6 +109,13 @@ To build only the CPU version (even if CUDA is available):
 ./configure --disable-nvidia
 ```
 
+### Disabling AMD GPU Library
+
+To build only the CPU version (even if ROCm is available):
+```bash
+./configure --disable-amd
+```
+
 ### Specifying CUDA Installation Directory
 
 If CUDA is installed in a non-standard location:
@@ -107,6 +126,18 @@ If CUDA is installed in a non-standard location:
 Example:
 ```bash
 ./configure --with-cuda=/opt/cuda-11.8
+```
+
+### Specifying ROCm Installation Directory
+
+If ROCm is installed in a non-standard location:
+```bash
+./configure --with-rocm=/path/to/rocm
+```
+
+Example:
+```bash
+./configure --with-rocm=/opt/rocm
 ```
 
 ### Specifying BLAS Library
@@ -140,6 +171,12 @@ To install in a custom location (default is /usr/local):
 You can combine multiple options:
 ```bash
 ./configure --prefix=$HOME/local --with-cuda=/opt/cuda --with-blas="-lopenblas"
+
+# Or for AMD GPU
+./configure --prefix=$HOME/local --with-rocm=/opt/rocm --with-blas="-lopenblas"
+
+# Or build both GPU libraries
+./configure --with-cuda=/opt/cuda --with-rocm=/opt/rocm
 ```
 
 ## Build and Installation Steps
@@ -155,6 +192,7 @@ The configure script will:
 - Detect available compilers
 - Check for required libraries
 - Auto-detect CUDA/cuBLAS if available
+- Auto-detect ROCm/hipBLAS if available
 - Display a configuration summary
 
 Example output:
@@ -174,6 +212,12 @@ Example output:
   CUDA_CFLAGS:     -I/usr/local/cuda/include
   CUDA_LDFLAGS:    -L/usr/local/cuda/lib64
   CUDA_LIBS:       -lcudart -lcublas
+
+  AMD GPU:         enabled
+  ROCM_PATH:       /opt/rocm
+  ROCM_CFLAGS:     -I/opt/rocm/include
+  ROCM_LDFLAGS:    -L/opt/rocm/lib
+  ROCM_LIBS:       -lamdhip64 -lhipblas
 ========================================
 ```
 
@@ -187,6 +231,7 @@ make
 This will create:
 - `src/.libs/libsimple_gpu-cpu.so` - CPU-only library
 - `src/.libs/libsimple_gpu-nvidia.so` - NVIDIA GPU library (if CUDA was detected)
+- `src/.libs/libsimple_gpu-amd.so` - AMD GPU library (if ROCm was detected)
 
 ### 3. Test
 
@@ -239,6 +284,13 @@ Or specify the BLAS library manually:
 Explicitly disable NVIDIA support:
 ```bash
 ./configure --disable-nvidia
+```
+
+### Configure detects ROCm but you don't want it
+
+Explicitly disable AMD support:
+```bash
+./configure --disable-amd
 ```
 
 ### Libraries not found at runtime
@@ -315,7 +367,8 @@ If you encounter issues:
 1. Check that all prerequisites are installed
 2. Review the configuration summary output
 3. Check `config.log` for detailed error messages
-4. Ensure CUDA libraries are in your library path (for GPU version)
-5. Run tests with `make check` to verify the build
+4. Ensure CUDA libraries are in your library path (for NVIDIA GPU version)
+5. Ensure ROCm libraries are in your library path (for AMD GPU version)
+6. Run tests with `make check` to verify the build
 
 For additional help, please file an issue on the GitHub repository.

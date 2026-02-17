@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_CPPFLAGS = -I$(srcdir)/include
 
-EXTRA_DIST = README.md LICENSE pkgconfig/simple_gpu-cpu.pc.in pkgconfig/simple_gpu-nvidia.pc.in
+EXTRA_DIST = README.md LICENSE pkgconfig/simple_gpu-cpu.pc.in pkgconfig/simple_gpu-nvidia.pc.in pkgconfig/simple_gpu-amd.pc.in
 
 include_HEADERS = include/simple_gpu.h include/simple_gpu.F90
 
@@ -11,6 +11,10 @@ pkgconfig_DATA = pkgconfig/simple_gpu-cpu.pc
 
 if BUILD_NVIDIA
 pkgconfig_DATA += pkgconfig/simple_gpu-nvidia.pc
+endif
+
+if BUILD_AMD
+pkgconfig_DATA += pkgconfig/simple_gpu-amd.pc
 endif
 
 # ===== Source library section (from src/Makefile.am) =====
@@ -31,6 +35,16 @@ libsimple_gpu_nvidia_la_CFLAGS = -I$(top_srcdir)/include $(CUDA_CFLAGS)
 libsimple_gpu_nvidia_la_FCFLAGS =
 libsimple_gpu_nvidia_la_LIBADD = $(CUDA_LIBS)
 libsimple_gpu_nvidia_la_LDFLAGS = -version-info 1:0:0 $(CUDA_LDFLAGS)
+endif
+
+# AMD GPU version library (conditional)
+if BUILD_AMD
+lib_LTLIBRARIES += libsimple_gpu-amd.la
+libsimple_gpu_amd_la_SOURCES = src/gpu_amd.c include/simple_gpu.F90
+libsimple_gpu_amd_la_CFLAGS = -I$(top_srcdir)/include $(ROCM_CFLAGS)
+libsimple_gpu_amd_la_FCFLAGS =
+libsimple_gpu_amd_la_LIBADD = $(ROCM_LIBS)
+libsimple_gpu_amd_la_LDFLAGS = -version-info 1:0:0 $(ROCM_LDFLAGS)
 endif
 
 # ===== Tests section (from tests/Makefile.am) =====
@@ -156,6 +170,77 @@ tests_test_sgeam_gpu_SOURCES = tests/test_sgeam.F90
 tests_test_sgeam_gpu_FCFLAGS = -I$(top_builddir)
 tests_test_sgeam_gpu_LDADD = libsimple_gpu-nvidia.la
 tests_test_sgeam_gpu_LDFLAGS = -ldl
+endif
+
+# AMD GPU tests (only when AMD is available)
+if BUILD_AMD
+TESTS += \
+	tests/test_ddot_amd \
+	tests/test_sdot_amd \
+	tests/test_dgemv_amd \
+	tests/test_sgemv_amd \
+	tests/test_dgemm_amd \
+	tests/test_sgemm_amd \
+	tests/test_dgeam_amd \
+	tests/test_sgeam_amd
+
+check_PROGRAMS += \
+	tests/test_ddot_amd \
+	tests/test_sdot_amd \
+	tests/test_dgemv_amd \
+	tests/test_sgemv_amd \
+	tests/test_dgemm_amd \
+	tests/test_sgemm_amd \
+	tests/test_dgeam_amd \
+	tests/test_sgeam_amd
+
+# DDOT AMD test
+tests_test_ddot_amd_SOURCES = tests/test_ddot.F90
+tests_test_ddot_amd_FCFLAGS = -I$(top_builddir)
+tests_test_ddot_amd_LDADD = libsimple_gpu-amd.la
+tests_test_ddot_amd_LDFLAGS = -ldl
+
+# SDOT AMD test
+tests_test_sdot_amd_SOURCES = tests/test_sdot.F90
+tests_test_sdot_amd_FCFLAGS = -I$(top_builddir)
+tests_test_sdot_amd_LDADD = libsimple_gpu-amd.la
+tests_test_sdot_amd_LDFLAGS = -ldl
+
+# DGEMV AMD test
+tests_test_dgemv_amd_SOURCES = tests/test_dgemv.F90
+tests_test_dgemv_amd_FCFLAGS = -I$(top_builddir)
+tests_test_dgemv_amd_LDADD = libsimple_gpu-amd.la
+tests_test_dgemv_amd_LDFLAGS = -ldl
+
+# SGEMV AMD test
+tests_test_sgemv_amd_SOURCES = tests/test_sgemv.F90
+tests_test_sgemv_amd_FCFLAGS = -I$(top_builddir)
+tests_test_sgemv_amd_LDADD = libsimple_gpu-amd.la
+tests_test_sgemv_amd_LDFLAGS = -ldl
+
+# DGEMM AMD test
+tests_test_dgemm_amd_SOURCES = tests/test_dgemm.F90
+tests_test_dgemm_amd_FCFLAGS = -I$(top_builddir)
+tests_test_dgemm_amd_LDADD = libsimple_gpu-amd.la
+tests_test_dgemm_amd_LDFLAGS = -ldl
+
+# SGEMM AMD test
+tests_test_sgemm_amd_SOURCES = tests/test_sgemm.F90
+tests_test_sgemm_amd_FCFLAGS = -I$(top_builddir)
+tests_test_sgemm_amd_LDADD = libsimple_gpu-amd.la
+tests_test_sgemm_amd_LDFLAGS = -ldl
+
+# DGEAM AMD test
+tests_test_dgeam_amd_SOURCES = tests/test_dgeam.F90
+tests_test_dgeam_amd_FCFLAGS = -I$(top_builddir)
+tests_test_dgeam_amd_LDADD = libsimple_gpu-amd.la
+tests_test_dgeam_amd_LDFLAGS = -ldl
+
+# SGEAM AMD test
+tests_test_sgeam_amd_SOURCES = tests/test_sgeam.F90
+tests_test_sgeam_amd_FCFLAGS = -I$(top_builddir)
+tests_test_sgeam_amd_LDADD = libsimple_gpu-amd.la
+tests_test_sgeam_amd_LDFLAGS = -ldl
 endif
 
 # Clean up Fortran module files

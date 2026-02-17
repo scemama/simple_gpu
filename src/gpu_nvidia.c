@@ -152,7 +152,7 @@ void gpu_blas_destroy(cublasHandle_t* ptr) {
   assert (ptr != NULL);
   cublasStatus_t rc = cublasDestroy(*ptr);
   assert (rc == CUBLAS_STATUS_SUCCESS);
-  ptr = NULL;
+  *ptr = NULL;
 }
 
 
