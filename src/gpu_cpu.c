@@ -101,7 +101,12 @@ void gpu_stream_synchronize(void* stream) {
 
 /* BLAS functions */
 
-/* Helper function to check for int64_t to int32_t conversion overflow */
+/**
+ * @brief Check if an int64_t value can be safely converted to int32_t
+ * @param value The int64_t value to check
+ * @param name The name of the parameter (for error messages)
+ * @return true if overflow would occur, false otherwise
+ */
 static inline bool check_int32_overflow(int64_t value, const char* name) {
   if (value > INT32_MAX || value < INT32_MIN) {
     fprintf(stderr, "Integer overflow: %s value %lld exceeds int32_t range\n", name, (long long)value);
