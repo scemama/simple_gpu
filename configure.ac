@@ -1,3 +1,5 @@
+AC_PREREQ([2.69])
+
 AC_INIT([simple_gpu], [1.0], [https://github.com/scemama/simple_gpu], [], [https://github.com/scemama/simple_gpu])
 # Author: Anthony Scemama
 AC_CONFIG_MACRO_DIR([m4])
@@ -8,7 +10,8 @@ AC_PROG_F77
 AC_PROG_CC
 AC_PROG_FC
 AM_PROG_AR
-LT_INIT
+LT_INIT([shared static])
+
 
 ## BLAS
 AX_BLAS([], [AC_MSG_ERROR([BLAS was not found.])])
