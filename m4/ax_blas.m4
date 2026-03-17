@@ -166,22 +166,41 @@ if test $ax_blas_ok = no; then
 		        fi
 		# 32 bit
 		elif test $host_cpu = i686; then
-			AC_CHECK_LIB(mkl_gf, $sgemm,
-				[ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf -lmkl_sequential -lmkl_core -lpthread"],,
-				[-lmkl_gf -lmkl_sequential -lmkl_core -lpthread])
+                        # Try simple MKL runtime linking first
+                        AC_CHECK_LIB(mkl_rt, $sgemm,
+                                [ax_blas_ok=yes;BLAS_LIBS="-lmkl_rt -lpthread"],,
+                                [-lmkl_rt -lpthread])
+                        if test $ax_blas_ok = no; then
+                                # If that failed, try the more specific MKL libraries
+				AC_CHECK_LIB(mkl_gf, $sgemm,
+					[ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf -lmkl_sequential -lmkl_core -lpthread"],,
+					[-lmkl_gf -lmkl_sequential -lmkl_core -lpthread])
+			fi
 		fi
 	# MKL for other compilers (Intel, PGI, ...?)
 	else
 		# 64-bit
 		if test $host_cpu = x86_64; then
-			AC_CHECK_LIB(mkl_intel_lp64, $sgemm,
-				[ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
-				[-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread])
+                        # Try simple MKL runtime linking first
+                        AC_CHECK_LIB(mkl_rt, $sgemm,
+                                [ax_blas_ok=yes;BLAS_LIBS="-lmkl_rt -lpthread"],,
+                                [-lmkl_rt -lpthread])
+                        if test $ax_blas_ok = no; then
+				AC_CHECK_LIB(mkl_intel_lp64, $sgemm,
+					[ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
+					[-lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lpthread])
+			fi
 		# 32-bit
 		elif test $host_cpu = i686; then
-			AC_CHECK_LIB(mkl_intel, $sgemm,
-				[ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel -lmkl_sequential -lmkl_core -lpthread"],,
-				[-lmkl_intel -lmkl_sequential -lmkl_core -lpthread])
+                        # Try simple MKL runtime linking first
+                        AC_CHECK_LIB(mkl_rt, $sgemm,
+                                [ax_blas_ok=yes;BLAS_LIBS="-lmkl_rt -lpthread"],,
+                                [-lmkl_rt -lpthread])
+                        if test $ax_blas_ok = no; then
+				AC_CHECK_LIB(mkl_intel, $sgemm,
+					[ax_blas_ok=yes;BLAS_LIBS="-lmkl_intel -lmkl_sequential -lmkl_core -lpthread"],,
+					[-lmkl_intel -lmkl_sequential -lmkl_core -lpthread])
+			fi
 		fi
 	fi
 fi
@@ -245,6 +264,13 @@ fi
 
 if test $ax_blas_ok = no; then
 	AC_CHECK_LIB(armpl_lp64, $dgemm, [ax_blas_ok=yes;BLAS_LIBS="-larmpl_lp64"])
+fi
+
+
+# # TODO
+# BLAS in Nvidia NVPL library?
+if test $ax_blas_ok = no; then
+	AC_CHECK_LIB(nvpl_blas_lp64_gomp, $dgemm, [ax_blas_ok=yes;BLAS_LIBS="-lnvpl_blas_lp64_gomp"])
 fi
 
 
