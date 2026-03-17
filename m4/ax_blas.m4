@@ -153,6 +153,20 @@ if test $ax_blas_ok = no; then
 	if test x"$ac_cv_fc_compiler_gnu" = xyes; then
 		# 64 bit
 		if test $host_cpu = x86_64; then
+                        # Try simple MKL runtime linking first
+                        AC_CHECK_LIB(mkl_rt, $sgemm,
+                                [ax_blas_ok=yes;BLAS_LIBS="-lmkl_rt -lpthread"],,
+                                [-lmkl_rt -lpthread])
+                        # If that failed, try the more specific MKL libraries
+                        if test $ax_blas_ok = no; then
+                        # 64 bit
+                        AC_CHECK_LIB(mkl_gf_lp64, $sgemm,
+                                [ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
+                                [-lmkl_gf_lp64 -lmkl_sequential -lmkl_core 
+-lpthread])
+
+
+
 			AC_CHECK_LIB(mkl_gf_lp64, $sgemm,
 			[ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
 			[-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread])
