@@ -160,16 +160,10 @@ if test $ax_blas_ok = no; then
                         # If that failed, try the more specific MKL libraries
                         if test $ax_blas_ok = no; then
                         # 64 bit
-                        AC_CHECK_LIB(mkl_gf_lp64, $sgemm,
-                                [ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
-                                [-lmkl_gf_lp64 -lmkl_sequential -lmkl_core 
--lpthread])
-
-
-
-			AC_CHECK_LIB(mkl_gf_lp64, $sgemm,
-			[ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
-			[-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread])
+                                AC_CHECK_LIB(mkl_gf_lp64, $sgemm,
+                                        [ax_blas_ok=yes;BLAS_LIBS="-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread"],,
+                                        [-lmkl_gf_lp64 -lmkl_sequential -lmkl_core -lpthread])
+		        fi
 		# 32 bit
 		elif test $host_cpu = i686; then
 			AC_CHECK_LIB(mkl_gf, $sgemm,
