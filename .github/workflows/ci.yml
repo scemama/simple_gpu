@@ -14,10 +14,21 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         compiler:
-          - cc: gcc
-            fc: gfortran
+          - cc: gcc-9
+            fc: gfortran-9
+          - cc: gcc-10
+            fc: gfortran-10
+          - cc: gcc-11
+            fc: gfortran-11
+          - cc: gcc-12
+            fc: gfortran-12
+          - cc: gcc-13
+            fc: gfortran-13
+          - cc: gcc-14
+            fc: gfortran-14
           - cc: clang
             fc: gfortran
     
