@@ -1,6 +1,6 @@
 AC_PREREQ([2.69])
 
-AC_INIT([simple_gpu], [1.0.1], [https://github.com/scemama/simple_gpu], [], [https://github.com/scemama/simple_gpu])
+AC_INIT([simple_gpu], [1.0.2], [https://github.com/scemama/simple_gpu], [], [https://github.com/scemama/simple_gpu])
 # Author: Anthony Scemama
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-config])
