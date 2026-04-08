@@ -927,42 +927,42 @@ module gpu
       implicit none
       double precision, target, intent(in)     :: cpu_ptr(*)
       type(gpu_double1), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, 8_8*size(gpu_ptr%f))
+      call gpu_upload_c(c_loc(cpu_ptr(1)), gpu_ptr%c, 8_8*size(gpu_ptr%f))
     end subroutine
 
     subroutine gpu_upload_double2(cpu_ptr, gpu_ptr)
       implicit none
       double precision, target, intent(in)     :: cpu_ptr(:,:)
       type(gpu_double2), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
     end subroutine
 
     subroutine gpu_upload_double3(cpu_ptr, gpu_ptr)
       implicit none
       double precision, target, intent(in)     :: cpu_ptr(:,:,:)
       type(gpu_double3), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
     end subroutine
 
     subroutine gpu_upload_double4(cpu_ptr, gpu_ptr)
       implicit none
       double precision, target, intent(in)     :: cpu_ptr(:,:,:,:)
       type(gpu_double4), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
     end subroutine
 
     subroutine gpu_upload_double5(cpu_ptr, gpu_ptr)
       implicit none
       double precision, target, intent(in)     :: cpu_ptr(:,:,:,:,:)
       type(gpu_double5), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
     end subroutine
 
     subroutine gpu_upload_double6(cpu_ptr, gpu_ptr)
       implicit none
       double precision, target, intent(in)     :: cpu_ptr(:,:,:,:,:,:)
       type(gpu_double6), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1,1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*8_8)
     end subroutine
 
 
@@ -978,42 +978,42 @@ module gpu
       implicit none
       real, target, intent(in)     :: cpu_ptr(*)
       type(gpu_real1), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, 4_8*size(gpu_ptr%f))
+      call gpu_upload_c(c_loc(cpu_ptr(1)), gpu_ptr%c, 4_8*size(gpu_ptr%f))
     end subroutine
 
     subroutine gpu_upload_real2(cpu_ptr, gpu_ptr)
       implicit none
       real, target, intent(in)     :: cpu_ptr(:,:)
       type(gpu_real2), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
     end subroutine
 
     subroutine gpu_upload_real3(cpu_ptr, gpu_ptr)
       implicit none
       real, target, intent(in)     :: cpu_ptr(:,:,:)
       type(gpu_real3), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
     end subroutine
 
     subroutine gpu_upload_real4(cpu_ptr, gpu_ptr)
       implicit none
       real, target, intent(in)     :: cpu_ptr(:,:,:,:)
       type(gpu_real4), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
     end subroutine
 
     subroutine gpu_upload_real5(cpu_ptr, gpu_ptr)
       implicit none
       real, target, intent(in)     :: cpu_ptr(:,:,:,:,:)
       type(gpu_real5), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
     end subroutine
 
     subroutine gpu_upload_real6(cpu_ptr, gpu_ptr)
       implicit none
       real, target, intent(in)     :: cpu_ptr(:,:,:,:,:,:)
       type(gpu_real6), intent(in)    :: gpu_ptr
-      call gpu_upload_c(c_loc(cpu_ptr), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
+      call gpu_upload_c(c_loc(cpu_ptr(1,1,1,1,1,1)), gpu_ptr%c, product(shape(gpu_ptr%f)*1_8)*4_8)
     end subroutine
 
 
@@ -1032,42 +1032,42 @@ module gpu
       implicit none
       type(gpu_double1), intent(in)  :: gpu_ptr
       double precision, target, intent(in)   :: cpu_ptr(:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 8_8*size(gpu_ptr%f))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1)), 8_8*size(gpu_ptr%f))
     end subroutine
 
     subroutine gpu_download_double2(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_double2), intent(in)  :: gpu_ptr
       double precision, target, intent(in)   :: cpu_ptr(:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 8_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1)), 8_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_double3(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_double3), intent(in)  :: gpu_ptr
       double precision, target, intent(in)   :: cpu_ptr(:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 8_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1)), 8_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_double4(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_double4), intent(in)  :: gpu_ptr
       double precision, target, intent(in)   :: cpu_ptr(:,:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 8_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1,1)), 8_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_double5(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_double5), intent(in)  :: gpu_ptr
       double precision, target, intent(in)   :: cpu_ptr(:,:,:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 8_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1,1,1)), 8_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_double6(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_double6), intent(in)  :: gpu_ptr
       double precision, target, intent(in)   :: cpu_ptr(:,:,:,:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 8_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1,1,1,1)), 8_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_real0(gpu_ptr, cpu_ptr, n)
@@ -1082,42 +1082,42 @@ module gpu
       implicit none
       type(gpu_real1), intent(in)  :: gpu_ptr
       real, target, intent(in)   :: cpu_ptr(:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 4_8*size(gpu_ptr%f))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1)), 4_8*size(gpu_ptr%f))
     end subroutine
 
     subroutine gpu_download_real2(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_real2), intent(in)  :: gpu_ptr
       real, target, intent(in)   :: cpu_ptr(:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 4_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1)), 4_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_real3(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_real3), intent(in)  :: gpu_ptr
       real, target, intent(in)   :: cpu_ptr(:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 4_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1)), 4_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_real4(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_real4), intent(in)  :: gpu_ptr
       real, target, intent(in)   :: cpu_ptr(:,:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 4_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1,1)), 4_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_real5(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_real5), intent(in)  :: gpu_ptr
       real, target, intent(in)   :: cpu_ptr(:,:,:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 4_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1,1,1)), 4_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
     subroutine gpu_download_real6(gpu_ptr, cpu_ptr)
       implicit none
       type(gpu_real6), intent(in)  :: gpu_ptr
       real, target, intent(in)   :: cpu_ptr(:,:,:,:,:,:)
-      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr), 4_8*product(shape(gpu_ptr%f)*1_8))
+      call gpu_download_c(gpu_ptr%c, c_loc(cpu_ptr(1,1,1,1,1,1)), 4_8*product(shape(gpu_ptr%f)*1_8))
     end subroutine
 
 ! gpu_copy
