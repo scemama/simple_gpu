@@ -151,6 +151,13 @@ void gpu_ddot(void* handle, const int64_t n, const double* x, const int64_t incx
 
 
 float sdot_(const int32_t* n, const float* x, const int32_t* incx, const float* y, const int32_t* incy);
+#if defined(__APPLE__)
+/* CBLAS entry point (Accelerate). Declared locally: including
+   <Accelerate/Accelerate.h> would clash with the Fortran-ABI
+   prototypes above. */
+float cblas_sdot(const int N, const float* X, const int incX,
+                 const float* Y, const int incY);
+#endif
 
 void gpu_sdot(void* handle, const int64_t n, const float* x, const int64_t incx, const float* y, const int64_t incy, float* result) {
   assert (handle != NULL);
@@ -167,7 +174,27 @@ void gpu_sdot(void* handle, const int64_t n, const float* x, const int64_t incx,
   assert ( (int64_t) incx_ == incx);
   assert ( (int64_t) incy_ == incy);
 
+#if defined(__APPLE__)
+  /* Apple Accelerate exports the Fortran-ABI sdot_ symbol but it
+     returns 0.0 on arm64 macOS (ddot_ is fine). Probe it once: if
+     sdot_ is correct (OpenBLAS, reference BLAS, or a fixed
+     Accelerate) use it; otherwise fall back to cblas_sdot, which is
+     always present in the broken case (Accelerate). Avoids a hard
+     cblas dependency for BLAS builds without the C interface. */
+  static int sdot_ok = -1;
+  if (sdot_ok < 0) {
+    const int32_t probe_n = 2, probe_inc = 1;
+    const float probe_x[2] = {1.0f, 2.0f};
+    const float probe_y[2] = {3.0f, 4.0f};
+    sdot_ok = (sdot_(&probe_n, probe_x, &probe_inc, probe_y, &probe_inc) == 11.0f);
+  }
+  if (sdot_ok)
+    *result = sdot_(&n_, x, &incx_, y, &incy_);
+  else
+    *result = cblas_sdot(n_, x, incx_, y, incy_);
+#else
   *result = sdot_(&n_, x, &incx_, y, &incy_);
+#endif
 }
 
 

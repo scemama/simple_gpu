@@ -17,10 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         compiler:
-          - cc: gcc-9
-            fc: gfortran-9
-          - cc: gcc-10
-            fc: gfortran-10
           - cc: gcc-11
             fc: gfortran-11
           - cc: gcc-12
@@ -64,6 +60,47 @@ jobs:
       - name: Run tests
         run: make check
       
+      - name: Display test results on failure
+        if: failure()
+        run: |
+          if [ -f tests/test-suite.log ]; then
+            echo "=== Test Suite Log ==="
+            cat tests/test-suite.log
+          fi
+          for log in tests/*.log; do
+            if [ -f "$log" ]; then
+              echo "=== $log ==="
+              cat "$log"
+            fi
+          done
+
+  # macOS arm64: builds against the system Accelerate framework. This is the
+  # platform where the Fortran-ABI sdot_ entry point is broken (returns 0.0),
+  # so this job verifies the cblas_sdot probe/fallback in gpu_sdot.
+  build-and-test-macos:
+    runs-on: [self-hosted, macOS, ARM64]
+    concurrency:
+      group: ci-macos-${{ github.ref }}
+      cancel-in-progress: true
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate configure script
+        run: ./autogen.sh
+
+      - name: Configure (CPU-only version, system Accelerate BLAS)
+        run: |
+          export PATH=/opt/homebrew/bin:$PATH
+          ./configure --disable-nvidia --disable-amd
+
+      - name: Build
+        run: make -j$(sysctl -n hw.ncpu)
+
+      - name: Run tests
+        run: make check
+
       - name: Display test results on failure
         if: failure()
         run: |
